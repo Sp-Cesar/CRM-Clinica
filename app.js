@@ -1,0 +1,33 @@
+const express = require('express');
+const session = require('express-session');
+const expressLayouts = require('express-ejs-layouts');
+const app = express();
+
+// Configuración de sesión
+app.use(session({
+    secret: "secret",
+    resave: false,
+    saveUninitialized: false,
+    cookie: { maxAge: 1000 * 60 * 60 } // 1 hora
+}));
+
+app.use(express.static(__dirname + '/public'));
+
+// Middleware para parsear formularios
+app.use(express.urlencoded({ extended: true }));
+
+
+
+
+// Configuración de EJS como motor de plantillas
+app.set('view engine', 'ejs');
+app.set('views', __dirname + '/views');
+app.use(expressLayouts)
+app.set('layout', 'layouts/main');
+
+app.use('/', require('./routes/auth.routes'));
+app.use('/', require('./routes/dash.routes'));
+
+app.listen(3000, () => {
+    console.log('Server is running http://localhost:3000/login');
+});

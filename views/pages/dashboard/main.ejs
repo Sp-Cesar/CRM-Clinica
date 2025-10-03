@@ -1,0 +1,77 @@
+<div class="space-y-8">
+  <!-- Header superior -->
+  <header class="flex items-center justify-between">
+    <div class="text-2xl font-bold text-[#3F4A4C]">Dashboard</div>
+    <div class="flex items-center gap-4">
+      <!-- Barra de búsqueda -->
+      <div class="relative">
+        <input
+          type="text"
+          placeholder="Buscar..."
+          class="rounded-xl pl-10 pr-4 py-2 bg-white/50 backdrop-blur-md border border-[#E0E6E6] focus:ring-2 focus:ring-[#A7D9B8] outline-none"
+        />
+        <span class="absolute left-3 top-2.5 text-gray-400">
+          🔍
+        </span>
+      </div>
+      <!-- Usuario -->
+      <div class="flex items-center gap-2">
+        <span class="font-medium text-[#3F4A4C]"><%= nombre %></span>
+        <img src="/img/user.png" alt="Usuario" class="w-10 h-10 rounded-full border border-[#E0E6E6]" />
+      </div>
+    </div>
+  </header>
+
+  <!-- Contenido principal -->
+  <section class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Bloque actividad -->
+    <div class="lg:col-span-2 p-6 rounded-2xl bg-white/50 backdrop-blur-md shadow border border-[#E0E6E6]">
+      <h2 class="text-lg font-semibold text-[#3F4A4C] mb-4">Actividad semanal</h2>
+      <div class="h-48 flex items-center justify-center text-gray-500">
+        📈 Aquí irá un gráfico de actividad (ejemplo con Chart.js más adelante)
+      </div>
+    </div>
+
+    <!-- Indicadores -->
+    <div class="space-y-6">
+      <div class="p-6 rounded-2xl bg-[#A7D9B8]/70 backdrop-blur-md shadow text-[#3F4A4C]">
+        <h3 class="text-sm font-medium">Citas programadas</h3>
+        <p class="text-3xl font-bold mt-2">25</p>
+      </div>
+      <div class="p-6 rounded-2xl bg-white/50 backdrop-blur-md shadow border border-[#E0E6E6] text-[#3F4A4C]">
+        <h3 class="text-sm font-medium">Pacientes registrados</h3>
+        <p class="text-3xl font-bold mt-2">120</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Segunda fila -->
+  <section class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Calendario -->
+    <div class="p-6 rounded-2xl bg-white/50 backdrop-blur-md shadow border border-[#E0E6E6] lg:col-span-1">
+      <h2 class="text-lg font-semibold text-[#3F4A4C] mb-4">Calendario</h2>
+      <div class="h-56 flex items-center justify-center text-gray-400">
+        📅 Aquí un calendario (ejemplo simple primero, luego librería)
+      </div>
+    </div>
+
+    <!-- Últimos pacientes -->
+    <div class="p-6 rounded-2xl bg-white/50 backdrop-blur-md shadow border border-[#E0E6E6] lg:col-span-2">
+      <h2 class="text-lg font-semibold text-[#3F4A4C] mb-4">Últimos pacientes</h2>
+      <ul class="space-y-3">
+        <li class="p-3 rounded-xl bg-[#E0E6E6]/50 flex justify-between items-center">
+          <span>Juan Pérez</span>
+          <span class="text-sm text-gray-600">Consulta general</span>
+        </li>
+        <li class="p-3 rounded-xl bg-[#E0E6E6]/50 flex justify-between items-center">
+          <span>María García</span>
+          <span class="text-sm text-gray-600">Pediatría</span>
+        </li>
+        <li class="p-3 rounded-xl bg-[#E0E6E6]/50 flex justify-between items-center">
+          <span>Pedro Díaz</span>
+          <span class="text-sm text-gray-600">Cardiología</span>
+        </li>
+      </ul>
+    </div>
+  </section>
+</div>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title %></title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Outfit', sans-serif; }
+  </style>
+</head>
+<body class="min-h-screen flex bg-[#E0E6E6]">
+  <!-- Sidebar -->
+  <aside class="w-64 bg-white/40 backdrop-blur-lg shadow-lg border-r border-[#E0E6E6] flex flex-col justify-between">
+    <!-- Logo y navegación -->
+    <div>
+      <!-- Logo -->
+      <div class="p-6 flex items-center gap-2">
+        <div class="w-10 h-10 bg-[#A7D9B8] rounded-xl flex items-center justify-center font-bold text-[#3F4A4C]">
+          🏥
+        </div>
+        <h1 class="text-lg font-bold text-[#3F4A4C]">CRM Clínica</h1>
+      </div>
+
+      <!-- Menú -->
+      <nav class="mt-6 px-4 space-y-2">
+        <a href="/dashboard" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-[#A7D9B8]/80 text-[#3F4A4C] font-semibold shadow">
+          📊 <span>Dashboard</span>
+        </a>
+        <a href="/pacientes" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#A7D9B8]/30 text-[#3F4A4C]">
+          👤 <span>Pacientes</span>
+        </a>
+        <a href="/medicos" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#A7D9B8]/30 text-[#3F4A4C]">
+          🩺 <span>Médicos</span>
+        </a>
+        <a href="/citas" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#A7D9B8]/30 text-[#3F4A4C]">
+          📅 <span>Citas</span>
+        </a>
+        <a href="/reportes" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#A7D9B8]/30 text-[#3F4A4C]">
+          📑 <span>Reportes</span>
+        </a>
+      </nav>
+    </div>
+
+    <!-- Sección inferior -->
+    <div class="p-6 border-t border-[#E0E6E6]">
+      <a href="/logout" class="flex items-center gap-3 px-4 py-2 rounded-xl bg-red-100 text-red-600 hover:bg-red-200 font-medium">
+        🚪 <span>Salir</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- Contenido -->
+  <main class="flex-1 p-8">
+    <%- body %>
+  </main>
+</body>
+</html>

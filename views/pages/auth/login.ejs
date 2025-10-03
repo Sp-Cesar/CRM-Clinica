@@ -1,0 +1,57 @@
+<div class="min-h-screen w-full bg-white relative flex items-center justify-center">
+  <!-- Fondo gradiente pastel -->
+  <div
+    class="absolute inset-0 z-0"
+    style="background: linear-gradient(120deg, #A7D9B8 0%, #E0E6E6 50%, #f0f0f0 100%);"
+  ></div>
+
+  <!-- Card central con glassmorphism -->
+  <div
+    class="relative z-10 flex w-11/12 max-w-4xl rounded-3xl shadow-xl overflow-hidden backdrop-blur-lg bg-white/30 border border-white/20"
+  >
+    <!-- Lado izquierdo: imagen -->
+    <div class="hidden md:flex md:w-1/2  items-center justify-center bg-transparent p-1">
+      <img src="/img/avatarLogin.png" alt="Doctor" class="w-[500px]  rounded-3xl h-auto object-contain" />
+    </div>
+
+    <!-- Lado derecho: formulario -->
+    <div class="w-full md:w-1/2 p-8 flex flex-col justify-center items-center"> 
+      <h2 class="text-2xl font-bold text-[#3F4A4C] mb-4">Bienvenido de nuevo</h2>
+      <p class="text-sm text-[#3F4A4C]/80 mb-6">Accede a tu cuenta de la clínica</p>
+
+      <form action="auth" method="POST" class="space-y-4">
+        <div class="w-full">
+          <input
+            type="email"
+            id="email"
+            name="email"
+            placeholder="Ingrese su correo"
+            class="w-full rounded-xl border border-[#E0E6E6] px-3 py-2 outline-none focus:ring-2 focus:ring-[#A7D9B8] bg-white/60"
+            
+          />
+        </div>
+        <div class="w-full">
+          <input
+            type="password"
+            id="password"
+            name="password"
+            placeholder="Ingrese su contraseña"
+            class="w-full rounded-xl border border-[#E0E6E6] px-3 py-2 outline-none focus:ring-2 focus:ring-[#A7D9B8] bg-white/60"
+            
+          />
+        </div>
+        <% if (message) { %>
+          <div class="text-red-600 text-sm">
+            <%= message %>
+          </div>
+        <% } %>
+        <button
+          type="submit"
+          class="w-full rounded-xl bg-[#A7D9B8] hover:bg-[#3F4A4C] text-white font-semibold py-2 transition-colors"
+        >
+          Ingresar
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
