@@ -1,0 +1,91 @@
+<div class="space-y-8">
+  <!-- Encabezado -->
+  <header class="flex items-center justify-between">
+    <div>
+      <h1 class="text-3xl font-bold text-[#3F4A4C]">Médicos 👩‍⚕️</h1>
+      <p class="text-sm text-[#3F4A4C]/70">Gestión y control del personal médico</p>
+    </div>
+
+    <button
+      id="btnAddMedico"
+      class="bg-[#A7D9B8] hover:bg-[#3F4A4C] hover:text-white text-[#3F4A4C] font-semibold px-5 py-2 rounded-xl shadow transition"
+    >
+      + Nuevo médico
+    </button>
+  </header>
+
+  <!-- Filtro de búsqueda -->
+  <form method="GET" action="/medicos" class="flex flex-wrap gap-4 items-center">
+    <input
+      type="text"
+      name="q"
+      value="<%= typeof busqueda !== 'undefined' ? busqueda : '' %>"
+      placeholder="Buscar médico por nombre, apellido o especialidad..."
+      class="flex-1 min-w-[240px] px-4 py-2 rounded-xl border border-[#E0E6E6] bg-white/60 backdrop-blur-md outline-none focus:ring-2 focus:ring-[#A7D9B8]"
+    />
+    <button
+      type="submit"
+      class="px-5 py-2 rounded-xl bg-[#A7D9B8] hover:bg-[#3F4A4C] text-white font-semibold shadow transition"
+    >
+      Buscar
+    </button>
+  </form>
+
+  <% if (busqueda) { %>
+    <p class="text-sm text-[#3F4A4C]/70">
+      Resultados de búsqueda para: <strong><%= busqueda %></strong>
+    </p>
+  <% } %>
+
+  <!-- Tabla de médicos -->
+  <div class="overflow-x-auto rounded-2xl bg-white/60 backdrop-blur-md shadow-lg border border-[#E0E6E6]">
+    <table class="w-full text-sm text-[#3F4A4C]">
+      <thead class="bg-[#A7D9B8]/70 text-[#3F4A4C] font-semibold uppercase tracking-wide">
+        <tr>
+          <th class="px-6 py-3 text-left">#</th>
+          <th class="px-6 py-3 text-left">Nombre</th>
+          <th class="px-6 py-3 text-left">Apellido</th>
+          <th class="px-6 py-3 text-left">Especialidad</th>
+          <th class="px-6 py-3 text-left">Teléfono</th>
+          <th class="px-6 py-3 text-left">Email</th>
+          <th class="px-6 py-3 text-left">Estado</th>
+          <th class="px-6 py-3 text-center">Acciones</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <% if (medicos && medicos.length > 0) { %>
+          <% medicos.forEach((m, i) => { %>
+            <tr class="border-t border-[#E0E6E6]/60 hover:bg-[#E0E6E6]/40 transition">
+              <td class="px-6 py-3"><%= i + 1 %></td>
+              <td class="px-6 py-3 font-semibold"><%= m.nombre %></td>
+              <td class="px-6 py-3"><%= m.apellido %></td>
+              <td class="px-6 py-3"><%= m.especialidad || '-' %></td>
+              <td class="px-6 py-3"><%= m.telefono || '-' %></td>
+              <td class="px-6 py-3"><%= m.email || '-' %></td>
+              <td class="px-6 py-3">
+                <% if (m.estado === 1) { %>
+                  <span class="text-green-600 font-semibold">Activo</span>
+                <% } else { %>
+                  <span class="text-red-500 font-semibold">Inactivo</span>
+                <% } %>
+              </td>
+              <td class="px-6 py-3 text-center space-x-2">
+                <button class="text-[#489FB5] font-semibold hover:underline">Editar</button>
+                <a href="/medicos/eliminar/<%= m.id %>" class="text-red-500 font-semibold hover:underline">Eliminar</a>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="8" class="text-center py-6 text-gray-500">No hay médicos registrados.</td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal -->
+  <%- include('../../partials/modals/modal-medico') %>
+
+</div>

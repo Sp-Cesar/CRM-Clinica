@@ -1,0 +1,121 @@
+<div class="space-y-8">
+
+  <!-- ENCABEZADO -->
+  <header class="flex items-center justify-between">
+    <div>
+      <h1 class="text-3xl font-bold text-[#3F4A4C]">Citas Médicas 🩺</h1>
+      <p class="text-sm text-[#3F4A4C]/70">Gestión y programación de citas por sede</p>
+    </div>
+
+    <button
+      id="btnAddCita"
+      class="bg-[#A7D9B8] hover:bg-[#3F4A4C] hover:text-white text-[#3F4A4C] font-semibold px-5 py-2 rounded-xl shadow transition"
+    >
+      + Nueva cita
+    </button>
+  </header>
+
+  <!-- FILTROS DE BÚSQUEDA -->
+  <form method="GET" action="/citas" class="flex flex-wrap gap-4 items-center">
+    <input
+      type="date"
+      name="fecha"
+      value="<%= typeof fechaFiltro !== 'undefined' ? fechaFiltro : '' %>"
+      class="px-4 py-2 rounded-xl border border-[#E0E6E6] bg-white/60 backdrop-blur-md outline-none focus:ring-2 focus:ring-[#A7D9B8]"
+    />
+
+    <select
+      name="medico_id"
+      class="px-4 py-2 rounded-xl border border-[#E0E6E6] bg-white/60 backdrop-blur-md outline-none focus:ring-2 focus:ring-[#A7D9B8]"
+    >
+      <option value="">Todos los médicos</option>
+      <% if (medicos && medicos.length > 0) { %>
+        <% medicos.forEach(m => { %>
+          <option value="<%= m.id %>" <%= medicoFiltro == m.id ? 'selected' : '' %>>
+            <%= m.nombre %> <%= m.apellido %>
+          </option>
+        <% }) %>
+      <% } %>
+    </select>
+
+    <select
+      name="estado"
+      class="px-4 py-2 rounded-xl border border-[#E0E6E6] bg-white/60 backdrop-blur-md outline-none focus:ring-2 focus:ring-[#A7D9B8]"
+    >
+      <option value="">Todos los estados</option>
+      <option value="programada" <%= estadoFiltro === 'programada' ? 'selected' : '' %>>Programada</option>
+      <option value="confirmada" <%= estadoFiltro === 'confirmada' ? 'selected' : '' %>>Confirmada</option>
+      <option value="cancelada" <%= estadoFiltro === 'cancelada' ? 'selected' : '' %>>Cancelada</option>
+      <option value="atendida" <%= estadoFiltro === 'atendida' ? 'selected' : '' %>>Atendida</option>
+      <option value="no_show" <%= estadoFiltro === 'no_show' ? 'selected' : '' %>>No asistió</option>
+    </select>
+
+    <button
+      type="submit"
+      class="px-5 py-2 rounded-xl bg-[#A7D9B8] hover:bg-[#3F4A4C] text-white font-semibold shadow transition"
+    >
+      Filtrar
+    </button>
+  </form>
+
+  <!-- TABLA DE CITAS -->
+  <div class="overflow-x-auto rounded-2xl bg-white/60 backdrop-blur-md shadow-lg border border-[#E0E6E6]">
+    <table class="w-full text-sm text-[#3F4A4C]">
+      <thead class="bg-[#A7D9B8]/70 text-[#3F4A4C] font-semibold uppercase tracking-wide">
+        <tr>
+          <th class="px-6 py-3 text-left">#</th>
+          <th class="px-6 py-3 text-left">Paciente</th>
+          <th class="px-6 py-3 text-left">Médico</th>
+          <th class="px-6 py-3 text-left">Fecha</th>
+          <th class="px-6 py-3 text-left">Hora</th>
+          <th class="px-6 py-3 text-left">Sede</th>
+          <th class="px-6 py-3 text-left">Motivo</th>
+          <th class="px-6 py-3 text-left">Estado</th>
+          <th class="px-6 py-3 text-center">Acciones</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <% if (citas && citas.length > 0) { %>
+          <% citas.forEach((c, i) => { %>
+            <tr class="border-t border-[#E0E6E6]/60 hover:bg-[#E0E6E6]/40 transition">
+              <td class="px-6 py-3"><%= i + 1 %></td>
+              <td class="px-6 py-3 font-semibold"><%= c.paciente_nombre %> <%= c.paciente_apellido %></td>
+              <td class="px-6 py-3"><%= c.medico_nombre %> <%= c.medico_apellido %></td>
+              <td class="px-6 py-3"><%= c.fecha_formateada %></td>
+
+
+              <td class="px-6 py-3"><%= c.hora_formateada %></td>
+              <td class="px-6 py-3"><%= c.sede_nombre %></td>
+              <td class="px-6 py-3"><%= c.motivo || '-' %></td>
+              <td class="px-6 py-3">
+                <% if (c.estado === 'programada') { %>
+                  <span class="text-blue-600 font-semibold">Programada</span>
+                <% } else if (c.estado === 'confirmada') { %>
+                  <span class="text-green-600 font-semibold">Confirmada</span>
+                <% } else if (c.estado === 'cancelada') { %>
+                  <span class="text-red-500 font-semibold">Cancelada</span>
+                <% } else if (c.estado === 'atendida') { %>
+                  <span class="text-[#4CAF50] font-semibold">Atendida</span>
+                <% } else { %>
+                  <span class="text-gray-500 font-semibold">No asistió</span>
+                <% } %>
+              </td>
+              <td class="px-6 py-3 text-center space-x-2">
+                <button class="text-[#489FB5] font-semibold hover:underline">Editar</button>
+                <a href="/citas/eliminar/<%= c.id %>" class="text-red-500 font-semibold hover:underline">Eliminar</a>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="9" class="text-center py-6 text-gray-500">No hay citas registradas.</td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal de nueva cita -->
+  <%- include('../../partials/modals/modal-cita') %>
+</div>

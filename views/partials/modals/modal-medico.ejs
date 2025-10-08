@@ -1,0 +1,111 @@
+<!-- Modal Registrar Médico -->
+<div
+  id="modalMedico"
+  class="hidden fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50"
+>
+  <div class="bg-white/90 rounded-2xl shadow-xl w-[90%] max-w-lg p-6 relative border border-[#E0E6E6]">
+    <h2 class="text-2xl font-bold text-[#3F4A4C] mb-4">Registrar nuevo médico</h2>
+
+    <form id="formMedico" action="/medicos" method="POST" class="space-y-4">
+      <!-- NOMBRE Y APELLIDO -->
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="text-sm font-medium text-[#3F4A4C]">Nombre</label>
+          <input
+            name="nombre"
+            required
+            class="w-full px-3 py-2 rounded-xl border border-[#E0E6E6] bg-white/70 outline-none focus:ring-2 focus:ring-[#A7D9B8]"
+          />
+        </div>
+        <div>
+          <label class="text-sm font-medium text-[#3F4A4C]">Apellido</label>
+          <input
+            name="apellido"
+            required
+            class="w-full px-3 py-2 rounded-xl border border-[#E0E6E6] bg-white/70 outline-none focus:ring-2 focus:ring-[#A7D9B8]"
+          />
+        </div>
+      </div>
+
+      <!-- ESPECIALIDAD -->
+      <div>
+        <label class="text-sm font-medium text-[#3F4A4C]">Especialidad</label>
+        <input
+          name="especialidad"
+          placeholder="Ej. Cardiología, Pediatría..."
+          class="w-full px-3 py-2 rounded-xl border border-[#E0E6E6] bg-white/70 outline-none focus:ring-2 focus:ring-[#A7D9B8]"
+        />
+      </div>
+
+      <!-- TELÉFONO Y EMAIL -->
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="text-sm font-medium text-[#3F4A4C]">Teléfono</label>
+          <input
+            name="telefono"
+            type="text"
+            maxlength="20"
+            class="w-full px-3 py-2 rounded-xl border border-[#E0E6E6] bg-white/70 outline-none focus:ring-2 focus:ring-[#A7D9B8]"
+          />
+        </div>
+        <div>
+          <label class="text-sm font-medium text-[#3F4A4C]">Correo electrónico</label>
+          <input
+            name="email"
+            type="email"
+            class="w-full px-3 py-2 rounded-xl border border-[#E0E6E6] bg-white/70 outline-none focus:ring-2 focus:ring-[#A7D9B8]"
+          />
+        </div>
+      </div>
+
+      <!-- ESTADO -->
+      <div>
+        <label class="text-sm font-medium text-[#3F4A4C]">Estado</label>
+        <select
+          name="estado"
+          class="w-full px-3 py-2 rounded-xl border border-[#E0E6E6] bg-white/70 outline-none focus:ring-2 focus:ring-[#A7D9B8]"
+        >
+          <option value="1" selected>Activo</option>
+          <option value="0">Inactivo</option>
+        </select>
+      </div>
+
+      <!-- BOTONES -->
+      <div class="flex justify-end gap-4 pt-4">
+        <button
+          type="button"
+          id="btnCerrarModalMedico"
+          class="px-4 py-2 rounded-xl border border-[#E0E6E6] bg-white/70 hover:bg-[#E0E6E6]/70 text-[#3F4A4C]"
+        >
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          class="px-4 py-2 rounded-xl bg-[#A7D9B8] hover:bg-[#3F4A4C] text-white font-semibold"
+        >
+          Guardar
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Script modal -->
+<script>
+  const modalMedico = document.getElementById("modalMedico");
+  const btnAddMedico = document.getElementById("btnAddMedico");
+  const btnCerrarModalMedico = document.getElementById("btnCerrarModalMedico");
+
+  btnAddMedico.addEventListener("click", () => modalMedico.classList.remove("hidden"));
+  btnCerrarModalMedico.addEventListener("click", () => modalMedico.classList.add("hidden"));
+
+  const formMedico = document.getElementById("formMedico");
+  formMedico.addEventListener("submit", (e) => {
+    const nombre = formMedico.nombre.value.trim();
+    const apellido = formMedico.apellido.value.trim();
+    if (!nombre || !apellido) {
+      alert("Por favor completa los campos obligatorios: nombre y apellido.");
+      e.preventDefault();
+    }
+  });
+</script>
