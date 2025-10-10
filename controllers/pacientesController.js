@@ -91,14 +91,56 @@ exports.crearPaciente = (req, res) => {
   conexion.query(sql, nuevoPaciente, (error) => {
     if (error) {
       console.error('Error al registrar paciente:', error);
+      req.session.error = 'Error al registrar el paciente';
       return res.redirect('/pacientes');
     }
 
-    console.log(` Paciente ${nombre} ${apellido} registrado correctamente`);
+    req.session.success = `Paciente ${nombre} ${apellido} registrado correctamente`;
     res.redirect('/pacientes');
   });
 };
 
+
+// Editar paciente
+exports.editarPaciente = (req, res) => {
+  const { id } = req.params;
+  const {
+    dni,
+    nombre,
+    apellido,
+    telefono,
+    email,
+    fecha_nacimiento,
+    direccion
+  } = req.body;
+
+  // Validar campos requeridos
+  if (!dni || !nombre || !apellido) {
+    req.session.error = 'DNI, nombre y apellido son obligatorios';
+    return res.redirect('/pacientes');
+  }
+
+  const pacienteActualizado = {
+    dni,
+    nombre,
+    apellido,
+    telefono,
+    email,
+    fecha_nacimiento,
+    direccion
+  };
+
+  conexion.query('UPDATE pacientes SET ? WHERE id = ?', [pacienteActualizado, id], (error) => {
+    if (error) {
+      console.error('Error al actualizar paciente:', error);
+      req.session.error = 'Error al actualizar el paciente';
+      return res.redirect('/pacientes');
+    }
+
+    req.session.success = 'Paciente actualizado correctamente';
+    res.redirect('/pacientes');
+  });
+};
 
 // Eliminar paciente
 exports.eliminarPaciente = (req, res) => {
@@ -107,6 +149,9 @@ exports.eliminarPaciente = (req, res) => {
   conexion.query('DELETE FROM pacientes WHERE id = ?', [id], (error) => {
     if (error) {
       console.log(' Error al eliminar paciente:', error);
+      req.session.error = 'Error al eliminar el paciente';
+    } else {
+      req.session.success = 'Paciente eliminado correctamente';
     }
     res.redirect('/pacientes');
   });

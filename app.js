@@ -37,6 +37,8 @@ app.use('/', require('./routes/dash.routes'));
 app.use('/', require('./routes/paciente.routes'));
 app.use('/', require('./routes/medicos.routes'));
 app.use('/', require('./routes/citas.routes'));
+app.use('/', require('./routes/historial.routes'));
+app.use('/', require('./routes/reportes.routes'));
 
 
 app.listen(3000, () => {

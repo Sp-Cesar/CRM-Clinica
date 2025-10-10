@@ -1,0 +1,114 @@
+<div class="space-y-8">
+  <!-- Encabezado -->
+  <header class="flex items-center justify-between">
+    <div>
+      <h1 class="text-3xl font-bold text-[#3F4A4C]">Historial de Atenciones 📋</h1>
+      <p class="text-sm text-[#3F4A4C]/70">Registro de consultas y diagnósticos médicos</p>
+    </div>
+
+    <button
+      id="btnAddHistorial"
+      class="bg-[#A7D9B8] hover:bg-[#3F4A4C] hover:text-white text-[#3F4A4C] font-semibold px-5 py-2 rounded-xl shadow transition"
+    >
+      + Nueva atención
+    </button>
+  </header>
+
+  <!-- Filtros -->
+  <form method="GET" action="/historial" class="flex flex-wrap gap-4 items-center">
+    <select
+      name="paciente_id"
+      class="px-4 py-2 rounded-xl border border-[#E0E6E6] bg-white/60 backdrop-blur-md outline-none focus:ring-2 focus:ring-[#A7D9B8]"
+    >
+      <option value="">Todos los pacientes</option>
+      <% if (pacientes && pacientes.length > 0) { %>
+        <% pacientes.forEach(p => { %>
+          <option value="<%= p.id %>" <%= pacienteFiltro == p.id ? 'selected' : '' %>>
+            <%= p.nombre %> <%= p.apellido %> - <%= p.dni %>
+          </option>
+        <% }) %>
+      <% } %>
+    </select>
+
+    <select
+      name="medico_id"
+      class="px-4 py-2 rounded-xl border border-[#E0E6E6] bg-white/60 backdrop-blur-md outline-none focus:ring-2 focus:ring-[#A7D9B8]"
+    >
+      <option value="">Todos los médicos</option>
+      <% if (medicos && medicos.length > 0) { %>
+        <% medicos.forEach(m => { %>
+          <option value="<%= m.id %>" <%= medicoFiltro == m.id ? 'selected' : '' %>>
+            <%= m.nombre %> <%= m.apellido %> - <%= m.especialidad %>
+          </option>
+        <% }) %>
+      <% } %>
+    </select>
+
+    <button
+      type="submit"
+      class="px-5 py-2 rounded-xl bg-[#A7D9B8] hover:bg-[#3F4A4C] text-white font-semibold shadow transition"
+    >
+      Filtrar
+    </button>
+  </form>
+
+  <!-- Tabla de historial -->
+  <div class="overflow-x-auto rounded-2xl bg-white/60 backdrop-blur-md shadow-lg border border-[#E0E6E6]">
+    <table class="w-full text-sm text-[#3F4A4C]">
+      <thead class="bg-[#A7D9B8]/70 text-[#3F4A4C] font-semibold uppercase tracking-wide">
+        <tr>
+          <th class="px-6 py-3 text-left">#</th>
+          <th class="px-6 py-3 text-left">Fecha</th>
+          <th class="px-6 py-3 text-left">Paciente</th>
+          <th class="px-6 py-3 text-left">Médico</th>
+          <th class="px-6 py-3 text-left">Diagnóstico</th>
+          <th class="px-6 py-3 text-left">Observaciones</th>
+          <th class="px-6 py-3 text-left">Tratamiento</th>
+          <th class="px-6 py-3 text-center">Acciones</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <% if (historiales && historiales.length > 0) { %>
+          <% historiales.forEach((h, i) => { %>
+            <tr class="border-t border-[#E0E6E6]/60 hover:bg-[#E0E6E6]/40 transition">
+              <td class="px-6 py-3"><%= i + 1 %></td>
+              <td class="px-6 py-3">
+                <%= new Date(h.fecha_atencion).toLocaleDateString('es-PE') %>
+              </td>
+              <td class="px-6 py-3 font-semibold">
+                <a href="/historial/paciente/<%= h.paciente_id %>" class="text-[#489FB5] hover:underline">
+                  <%= h.paciente_nombre %> <%= h.paciente_apellido %>
+                </a>
+              </td>
+              <td class="px-6 py-3">
+                <%= h.medico_nombre %> <%= h.medico_apellido %><br/>
+                <span class="text-xs text-gray-500"><%= h.medico_especialidad %></span>
+              </td>
+              <td class="px-6 py-3">
+                <%= h.diagnostico.substring(0, 50) %><%= h.diagnostico.length > 50 ? '...' : '' %>
+              </td>
+              <td class="px-6 py-3">
+                <%= h.observaciones ? h.observaciones.substring(0, 30) : '-' %><%= h.observaciones && h.observaciones.length > 30 ? '...' : '' %>
+              </td>
+              <td class="px-6 py-3">
+                <%= h.tratamiento ? h.tratamiento.substring(0, 30) : '-' %><%= h.tratamiento && h.tratamiento.length > 30 ? '...' : '' %>
+              </td>
+              <td class="px-6 py-3 text-center space-x-2">
+                <a href="/historial/eliminar/<%= h.id %>" class="text-red-500 font-semibold hover:underline" onclick="return confirm('¿Estás seguro de eliminar este registro?')">Eliminar</a>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="8" class="text-center py-6 text-gray-500">No hay registros de atenciones.</td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal -->
+  <%- include('../../partials/modals/modal-historial') %>
+</div>
+

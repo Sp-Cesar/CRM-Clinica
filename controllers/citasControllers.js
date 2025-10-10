@@ -11,6 +11,8 @@ exports.listarCitas = (req, res) => {
   let sql = `
     SELECT 
       c.id,
+      c.paciente_id,
+      c.medico_id,
       p.nombre AS paciente_nombre,
       p.apellido AS paciente_apellido,
       m.nombre AS medico_nombre,
@@ -71,7 +73,10 @@ exports.listarCitas = (req, res) => {
     return {
         ...c,
         fecha_formateada: fechaISO ? formatearFechaPeru(fechaISO) : 'Sin fecha',
-        hora_formateada: c.hora ? formatearHoraBloque(c.hora) : 'Sin hora'
+        hora_formateada: c.hora ? formatearHoraBloque(c.hora) : 'Sin hora',
+        fecha_iso: fechaISO,
+        paciente_id: c.paciente_id || 0,
+        medico_id: c.medico_id || 0
     };
     });
 
@@ -175,6 +180,89 @@ exports.crearCita = (req, res) => {
     res.redirect('/citas');
 
     });
+  });
+};
+
+// Editar cita
+exports.editarCita = (req, res) => {
+  const { id } = req.params;
+  const { paciente_id, medico_id, fecha, hora, motivo, estado } = req.body;
+
+  if (!paciente_id || !medico_id || !fecha || !hora) {
+    req.session.error = 'Todos los campos son obligatorios';
+    return res.redirect('/citas');
+  }
+
+  const sede_id = 1;
+
+  // Validar que no exista duplicado (excepto la misma cita)
+  const sqlCheck = `
+    SELECT * FROM citas 
+    WHERE medico_id = ? AND sede_id = ? AND fecha = ? AND hora = ? AND id != ?
+  `;
+
+  conexion.query(sqlCheck, [medico_id, sede_id, fecha, hora, id], (err, results) => {
+    if (err) {
+      console.error('Error validando duplicado:', err);
+      req.session.error = 'Error al validar la cita';
+      return res.redirect('/citas');
+    }
+
+    if (results.length > 0) {
+      req.session.error = 'El médico ya tiene una cita en ese horario';
+      return res.redirect('/citas');
+    }
+
+    const citaActualizada = {
+      paciente_id,
+      medico_id,
+      sede_id,
+      fecha,
+      hora,
+      motivo: motivo || null,
+      estado: estado || 'programada'
+    };
+
+    conexion.query('UPDATE citas SET ? WHERE id = ?', [citaActualizada, id], (error) => {
+      if (error) {
+        console.error('Error al actualizar cita:', error);
+        req.session.error = 'Error al actualizar la cita';
+        return res.redirect('/citas');
+      }
+
+      req.session.success = 'Cita actualizada correctamente';
+      res.redirect('/citas');
+    });
+  });
+};
+
+// Cancelar cita
+exports.cancelarCita = (req, res) => {
+  const { id } = req.params;
+
+  conexion.query('UPDATE citas SET estado = ? WHERE id = ?', ['cancelada', id], (error) => {
+    if (error) {
+      console.error('Error al cancelar cita:', error);
+      req.session.error = 'Error al cancelar la cita';
+    } else {
+      req.session.success = 'Cita cancelada correctamente';
+    }
+    res.redirect('/citas');
+  });
+};
+
+// Eliminar cita
+exports.eliminarCita = (req, res) => {
+  const { id } = req.params;
+
+  conexion.query('DELETE FROM citas WHERE id = ?', [id], (error) => {
+    if (error) {
+      console.error('Error al eliminar cita:', error);
+      req.session.error = 'Error al eliminar la cita';
+    } else {
+      req.session.success = 'Cita eliminada correctamente';
+    }
+    res.redirect('/citas');
   });
 };
 

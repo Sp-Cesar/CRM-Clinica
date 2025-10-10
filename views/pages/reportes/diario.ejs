@@ -1,0 +1,109 @@
+<div class="space-y-8">
+  <!-- Encabezado -->
+  <header class="flex items-center justify-between">
+    <div>
+      <h1 class="text-3xl font-bold text-[#3F4A4C]">Reporte Diario de Citas 📅</h1>
+      <p class="text-sm text-[#3F4A4C]/70">
+        Fecha: <%= new Date(fecha).toLocaleDateString('es-PE', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) %>
+      </p>
+    </div>
+
+    <a href="/reportes" class="bg-[#E0E6E6] hover:bg-[#3F4A4C] hover:text-white text-[#3F4A4C] font-semibold px-5 py-2 rounded-xl shadow transition">
+      ← Volver
+    </a>
+  </header>
+
+  <!-- Filtro de fecha -->
+  <form method="GET" action="/reportes/diario" class="flex gap-4 items-center">
+    <input
+      type="date"
+      name="fecha"
+      value="<%= fecha %>"
+      class="px-4 py-2 rounded-xl border border-[#E0E6E6] bg-white/60 backdrop-blur-md outline-none focus:ring-2 focus:ring-[#A7D9B8]"
+    />
+    <button
+      type="submit"
+      class="px-5 py-2 rounded-xl bg-[#A7D9B8] hover:bg-[#3F4A4C] text-white font-semibold shadow transition"
+    >
+      Buscar
+    </button>
+  </form>
+
+  <!-- Estadísticas -->
+  <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+    <div class="p-4 rounded-xl bg-white/60 backdrop-blur-md shadow border border-[#E0E6E6]">
+      <h3 class="text-xs font-medium text-gray-600">Total Citas</h3>
+      <p class="text-2xl font-bold text-[#3F4A4C]"><%= totalCitas %></p>
+    </div>
+    <div class="p-4 rounded-xl bg-blue-100/60 backdrop-blur-md shadow border border-blue-200">
+      <h3 class="text-xs font-medium text-blue-700">Programadas</h3>
+      <p class="text-2xl font-bold text-blue-600"><%= citasProgramadas %></p>
+    </div>
+    <div class="p-4 rounded-xl bg-green-100/60 backdrop-blur-md shadow border border-green-200">
+      <h3 class="text-xs font-medium text-green-700">Confirmadas</h3>
+      <p class="text-2xl font-bold text-green-600"><%= citasConfirmadas %></p>
+    </div>
+    <div class="p-4 rounded-xl bg-emerald-100/60 backdrop-blur-md shadow border border-emerald-200">
+      <h3 class="text-xs font-medium text-emerald-700">Atendidas</h3>
+      <p class="text-2xl font-bold text-emerald-600"><%= citasAtendidas %></p>
+    </div>
+    <div class="p-4 rounded-xl bg-red-100/60 backdrop-blur-md shadow border border-red-200">
+      <h3 class="text-xs font-medium text-red-700">Canceladas</h3>
+      <p class="text-2xl font-bold text-red-600"><%= citasCanceladas %></p>
+    </div>
+  </div>
+
+  <!-- Tabla de citas -->
+  <div class="overflow-x-auto rounded-2xl bg-white/60 backdrop-blur-md shadow-lg border border-[#E0E6E6]">
+    <table class="w-full text-sm text-[#3F4A4C]">
+      <thead class="bg-[#A7D9B8]/70 text-[#3F4A4C] font-semibold uppercase tracking-wide">
+        <tr>
+          <th class="px-6 py-3 text-left">Hora</th>
+          <th class="px-6 py-3 text-left">Paciente</th>
+          <th class="px-6 py-3 text-left">DNI</th>
+          <th class="px-6 py-3 text-left">Teléfono</th>
+          <th class="px-6 py-3 text-left">Médico</th>
+          <th class="px-6 py-3 text-left">Especialidad</th>
+          <th class="px-6 py-3 text-left">Motivo</th>
+          <th class="px-6 py-3 text-left">Estado</th>
+          <th class="px-6 py-3 text-left">Sede</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <% if (citas && citas.length > 0) { %>
+          <% citas.forEach((c) => { %>
+            <tr class="border-t border-[#E0E6E6]/60 hover:bg-[#E0E6E6]/40 transition">
+              <td class="px-6 py-3 font-semibold"><%= c.hora.substring(0, 5) %></td>
+              <td class="px-6 py-3"><%= c.paciente_nombre %> <%= c.paciente_apellido %></td>
+              <td class="px-6 py-3"><%= c.paciente_dni %></td>
+              <td class="px-6 py-3"><%= c.paciente_telefono || '-' %></td>
+              <td class="px-6 py-3">Dr. <%= c.medico_nombre %> <%= c.medico_apellido %></td>
+              <td class="px-6 py-3"><%= c.medico_especialidad %></td>
+              <td class="px-6 py-3"><%= c.motivo || '-' %></td>
+              <td class="px-6 py-3">
+                <% if (c.estado === 'programada') { %>
+                  <span class="text-blue-600 font-semibold">Programada</span>
+                <% } else if (c.estado === 'confirmada') { %>
+                  <span class="text-green-600 font-semibold">Confirmada</span>
+                <% } else if (c.estado === 'atendida') { %>
+                  <span class="text-emerald-600 font-semibold">Atendida</span>
+                <% } else if (c.estado === 'cancelada') { %>
+                  <span class="text-red-500 font-semibold">Cancelada</span>
+                <% } else { %>
+                  <span class="text-gray-500 font-semibold">No asistió</span>
+                <% } %>
+              </td>
+              <td class="px-6 py-3"><%= c.sede_nombre %></td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="9" class="text-center py-6 text-gray-500">No hay citas programadas para esta fecha.</td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+

@@ -1,0 +1,83 @@
+<!-- MODAL DE CONFIRMACIÓN -->
+<div id="modalConfirmacion" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+  <div class="bg-white rounded-2xl shadow-2xl w-[90%] max-w-md p-6 border border-[#E0E6E6] transform transition-all">
+    <div class="text-center">
+      <!-- Icono -->
+      <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-4">
+        <svg class="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+        </svg>
+      </div>
+
+      <!-- Título -->
+      <h3 class="text-xl font-bold text-[#3F4A4C] mb-2" id="modalConfirmacionTitulo">
+        ¿Estás seguro?
+      </h3>
+
+      <!-- Mensaje -->
+      <p class="text-gray-600 mb-6" id="modalConfirmacionMensaje">
+        Esta acción no se puede deshacer.
+      </p>
+
+      <!-- Botones -->
+      <div class="flex gap-3 justify-center">
+        <button
+          id="btnCancelarConfirmacion"
+          type="button"
+          class="px-6 py-2 rounded-xl border-2 border-[#E0E6E6] bg-white hover:bg-gray-100 text-[#3F4A4C] font-semibold transition"
+        >
+          Cancelar
+        </button>
+        <button
+          id="btnConfirmarAccion"
+          type="button"
+          class="px-6 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white font-semibold transition"
+        >
+          Eliminar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Variables globales para el modal de confirmación
+  let urlConfirmacion = '';
+  const modalConfirmacion = document.getElementById('modalConfirmacion');
+  const btnCancelarConfirmacion = document.getElementById('btnCancelarConfirmacion');
+  const btnConfirmarAccion = document.getElementById('btnConfirmarAccion');
+
+  // Función para mostrar el modal de confirmación
+  window.confirmarEliminacion = function(url, tipo, nombre) {
+    urlConfirmacion = url;
+    const titulo = document.getElementById('modalConfirmacionTitulo');
+    const mensaje = document.getElementById('modalConfirmacionMensaje');
+    
+    titulo.textContent = `¿Eliminar ${tipo}?`;
+    mensaje.textContent = `¿Estás seguro de eliminar ${tipo === 'paciente' ? 'al paciente' : tipo === 'médico' ? 'al médico' : tipo === 'cita' ? 'la cita' : 'este registro'} ${nombre ? '"' + nombre + '"' : ''}? Esta acción no se puede deshacer.`;
+    
+    modalConfirmacion.classList.remove('hidden');
+  };
+
+  // Confirmar acción
+  btnConfirmarAccion.addEventListener('click', () => {
+    if (urlConfirmacion) {
+      window.location.href = urlConfirmacion;
+    }
+  });
+
+  // Cancelar
+  btnCancelarConfirmacion.addEventListener('click', () => {
+    modalConfirmacion.classList.add('hidden');
+    urlConfirmacion = '';
+  });
+
+  // Cerrar con ESC
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !modalConfirmacion.classList.contains('hidden')) {
+      modalConfirmacion.classList.add('hidden');
+      urlConfirmacion = '';
+    }
+  });
+</script>
+

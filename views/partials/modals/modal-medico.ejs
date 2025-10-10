@@ -4,14 +4,17 @@
   class="hidden fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50"
 >
   <div class="bg-white/90 rounded-2xl shadow-xl w-[90%] max-w-lg p-6 relative border border-[#E0E6E6]">
-    <h2 class="text-2xl font-bold text-[#3F4A4C] mb-4">Registrar nuevo médico</h2>
+    <h2 id="modalMedicoTitulo" class="text-2xl font-bold text-[#3F4A4C] mb-4">Registrar nuevo médico</h2>
 
     <form id="formMedico" action="/medicos" method="POST" class="space-y-4">
+      <input type="hidden" id="medicoId" name="id" />
+      
       <!-- NOMBRE Y APELLIDO -->
       <div class="grid grid-cols-2 gap-4">
         <div>
           <label class="text-sm font-medium text-[#3F4A4C]">Nombre</label>
           <input
+            id="medicoNombre"
             name="nombre"
             required
             class="w-full px-3 py-2 rounded-xl border border-[#E0E6E6] bg-white/70 outline-none focus:ring-2 focus:ring-[#A7D9B8]"
@@ -20,6 +23,7 @@
         <div>
           <label class="text-sm font-medium text-[#3F4A4C]">Apellido</label>
           <input
+            id="medicoApellido"
             name="apellido"
             required
             class="w-full px-3 py-2 rounded-xl border border-[#E0E6E6] bg-white/70 outline-none focus:ring-2 focus:ring-[#A7D9B8]"
@@ -31,6 +35,7 @@
       <div>
         <label class="text-sm font-medium text-[#3F4A4C]">Especialidad</label>
         <input
+          id="medicoEspecialidad"
           name="especialidad"
           placeholder="Ej. Cardiología, Pediatría..."
           class="w-full px-3 py-2 rounded-xl border border-[#E0E6E6] bg-white/70 outline-none focus:ring-2 focus:ring-[#A7D9B8]"
@@ -42,6 +47,7 @@
         <div>
           <label class="text-sm font-medium text-[#3F4A4C]">Teléfono</label>
           <input
+            id="medicoTelefono"
             name="telefono"
             type="text"
             maxlength="20"
@@ -51,6 +57,7 @@
         <div>
           <label class="text-sm font-medium text-[#3F4A4C]">Correo electrónico</label>
           <input
+            id="medicoEmail"
             name="email"
             type="email"
             class="w-full px-3 py-2 rounded-xl border border-[#E0E6E6] bg-white/70 outline-none focus:ring-2 focus:ring-[#A7D9B8]"
@@ -62,6 +69,7 @@
       <div>
         <label class="text-sm font-medium text-[#3F4A4C]">Estado</label>
         <select
+          id="medicoEstado"
           name="estado"
           class="w-full px-3 py-2 rounded-xl border border-[#E0E6E6] bg-white/70 outline-none focus:ring-2 focus:ring-[#A7D9B8]"
         >
@@ -95,11 +103,35 @@
   const modalMedico = document.getElementById("modalMedico");
   const btnAddMedico = document.getElementById("btnAddMedico");
   const btnCerrarModalMedico = document.getElementById("btnCerrarModalMedico");
+  const formMedico = document.getElementById("formMedico");
+  const tituloMedico = document.getElementById("modalMedicoTitulo");
 
-  btnAddMedico.addEventListener("click", () => modalMedico.classList.remove("hidden"));
+  // Abrir modal para crear
+  btnAddMedico.addEventListener("click", () => {
+    formMedico.action = "/medicos";
+    formMedico.reset();
+    tituloMedico.textContent = "Registrar nuevo médico";
+    modalMedico.classList.remove("hidden");
+  });
+
+  // Abrir modal para editar
+  window.editarMedico = (medico) => {
+    formMedico.action = `/medicos/editar/${medico.id}`;
+    tituloMedico.textContent = "Editar médico";
+    
+    document.getElementById("medicoId").value = medico.id;
+    document.getElementById("medicoNombre").value = medico.nombre;
+    document.getElementById("medicoApellido").value = medico.apellido;
+    document.getElementById("medicoEspecialidad").value = medico.especialidad || '';
+    document.getElementById("medicoTelefono").value = medico.telefono || '';
+    document.getElementById("medicoEmail").value = medico.email || '';
+    document.getElementById("medicoEstado").value = medico.estado;
+    
+    modalMedico.classList.remove("hidden");
+  };
+
   btnCerrarModalMedico.addEventListener("click", () => modalMedico.classList.add("hidden"));
 
-  const formMedico = document.getElementById("formMedico");
   formMedico.addEventListener("submit", (e) => {
     const nombre = formMedico.nombre.value.trim();
     const apellido = formMedico.apellido.value.trim();
