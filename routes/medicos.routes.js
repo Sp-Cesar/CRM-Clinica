@@ -10,6 +10,6 @@ function checkAuth(req, res, next) {
 router.get('/medicos', checkAuth, medicosController.listarMedicos);
 router.post('/medicos', checkAuth, medicosController.crearMedico);
 router.post('/medicos/editar/:id', checkAuth, medicosController.editarMedico);
-router.get('/medicos/eliminar/:id', checkAuth, medicosController.eliminarMedico);
+router.post('/medicos/eliminar/:id', checkAuth, medicosController.eliminarMedico);
 
 module.exports = router;

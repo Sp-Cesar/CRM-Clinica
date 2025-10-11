@@ -17,9 +17,9 @@ router.post('/citas', checkAuth, citasController.crearCita);
 router.post('/citas/editar/:id', checkAuth, citasController.editarCita);
 
 // Cancelar cita
-router.get('/citas/cancelar/:id', checkAuth, citasController.cancelarCita);
+router.post('/citas/cancelar/:id', checkAuth, citasController.cancelarCita);
 
 // Eliminar cita
-router.get('/citas/eliminar/:id', checkAuth, citasController.eliminarCita);
+router.post('/citas/eliminar/:id', checkAuth, citasController.eliminarCita);
 
 module.exports = router;

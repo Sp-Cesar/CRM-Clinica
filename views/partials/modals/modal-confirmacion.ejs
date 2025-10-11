@@ -59,10 +59,15 @@
     modalConfirmacion.classList.remove('hidden');
   };
 
-  // Confirmar acción
+  // Confirmar acción - Enviar formulario POST
   btnConfirmarAccion.addEventListener('click', () => {
     if (urlConfirmacion) {
-      window.location.href = urlConfirmacion;
+      // Crear formulario dinámico para enviar POST
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = urlConfirmacion;
+      document.body.appendChild(form);
+      form.submit();
     }
   });
 
