@@ -2,7 +2,7 @@ const mysql = require('mysql');
 const conexion = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: '', // Configurar con tu contraseña de MySQL
+    password: '123', // Configurar con tu contraseña de MySQL
     database: 'dbmiclinica'
 });
 conexion.connect((err) => {
