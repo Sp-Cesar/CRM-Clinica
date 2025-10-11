@@ -102,8 +102,9 @@
                 <% } %>
               </td>
               <td class="px-6 py-3 text-center space-x-2">
-                <button class="text-[#489FB5] font-semibold hover:underline">Editar</button>
-                <a href="/citas/eliminar/<%= c.id %>" class="text-red-500 font-semibold hover:underline">Eliminar</a>
+                <button onclick='editarCita({id: <%= c.id %>, paciente_id: <%= c.paciente_id %>, medico_id: <%= c.medico_id %>, fecha: "<%= c.fecha_iso || c.fecha %>", hora: "<%= c.hora %>", motivo: `<%= (c.motivo || "").replace(/`/g, "\\`") %>`, estado: "<%= c.estado %>"})' class="text-[#489FB5] font-semibold hover:underline">Editar</button>
+                <button onclick='confirmarEliminacion("/citas/cancelar/<%= c.id %>", "cita", "")' class="text-orange-500 font-semibold hover:underline">Cancelar</button>
+                <button onclick='confirmarEliminacion("/citas/eliminar/<%= c.id %>", "cita", "")' class="text-red-500 font-semibold hover:underline">Eliminar</button>
               </td>
             </tr>
           <% }) %>

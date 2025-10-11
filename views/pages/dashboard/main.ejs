@@ -1,77 +1,120 @@
 <div class="space-y-8">
   <!-- Header superior -->
   <header class="flex items-center justify-between">
-    <div class="text-2xl font-bold text-[#3F4A4C]">Dashboard</div>
-    <div class="flex items-center gap-4">
-      <!-- Barra de búsqueda -->
-      <div class="relative">
-        <input
-          type="text"
-          placeholder="Buscar..."
-          class="rounded-xl pl-10 pr-4 py-2 bg-white/50 backdrop-blur-md border border-[#E0E6E6] focus:ring-2 focus:ring-[#A7D9B8] outline-none"
-        />
-        <span class="absolute left-3 top-2.5 text-gray-400">
-          🔍
-        </span>
-      </div>
-      <!-- Usuario -->
-      <div class="flex items-center gap-2">
-        <span class="font-medium text-[#3F4A4C]"><%= nombre %></span>
-        <img src="/img/user.png" alt="Usuario" class="w-10 h-10 rounded-full border border-[#E0E6E6]" />
-      </div>
+    <div>
+      <h1 class="text-3xl font-bold text-[#3F4A4C]">Dashboard</h1>
+      <p class="text-sm text-[#3F4A4C]/70">Bienvenido, <%= nombre %></p>
     </div>
   </header>
 
-  <!-- Contenido principal -->
-  <section class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-    <!-- Bloque actividad -->
-    <div class="lg:col-span-2 p-6 rounded-2xl bg-white/50 backdrop-blur-md shadow border border-[#E0E6E6]">
-      <h2 class="text-lg font-semibold text-[#3F4A4C] mb-4">Actividad semanal</h2>
-      <div class="h-48 flex items-center justify-center text-gray-500">
-        📈 Aquí irá un gráfico de actividad (ejemplo con Chart.js más adelante)
-      </div>
+  <!-- Indicadores principales -->
+  <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div class="p-6 rounded-2xl bg-[#A7D9B8]/70 backdrop-blur-md shadow text-[#3F4A4C]">
+      <h3 class="text-sm font-medium">Total Pacientes</h3>
+      <p class="text-4xl font-bold mt-2"><%= estadisticas.total_pacientes %></p>
+      <p class="text-xs text-gray-600 mt-1">Registrados en el sistema</p>
     </div>
-
-    <!-- Indicadores -->
-    <div class="space-y-6">
-      <div class="p-6 rounded-2xl bg-[#A7D9B8]/70 backdrop-blur-md shadow text-[#3F4A4C]">
-        <h3 class="text-sm font-medium">Citas programadas</h3>
-        <p class="text-3xl font-bold mt-2">25</p>
-      </div>
-      <div class="p-6 rounded-2xl bg-white/50 backdrop-blur-md shadow border border-[#E0E6E6] text-[#3F4A4C]">
-        <h3 class="text-sm font-medium">Pacientes registrados</h3>
-        <p class="text-3xl font-bold mt-2">120</p>
-      </div>
+    <div class="p-6 rounded-2xl bg-white/60 backdrop-blur-md shadow border border-[#E0E6E6] text-[#3F4A4C]">
+      <h3 class="text-sm font-medium">Médicos Activos</h3>
+      <p class="text-4xl font-bold mt-2"><%= estadisticas.total_medicos %></p>
+      <p class="text-xs text-gray-600 mt-1">Personal disponible</p>
+    </div>
+    <div class="p-6 rounded-2xl bg-blue-100/60 backdrop-blur-md shadow border border-blue-200 text-blue-700">
+      <h3 class="text-sm font-medium">Citas Hoy</h3>
+      <p class="text-4xl font-bold mt-2"><%= estadisticas.citas_hoy %></p>
+      <p class="text-xs text-blue-600 mt-1">Programadas para hoy</p>
+    </div>
+    <div class="p-6 rounded-2xl bg-green-100/60 backdrop-blur-md shadow border border-green-200 text-green-700">
+      <h3 class="text-sm font-medium">Citas Este Mes</h3>
+      <p class="text-4xl font-bold mt-2"><%= estadisticas.citas_mes %></p>
+      <p class="text-xs text-green-600 mt-1">Total del mes actual</p>
     </div>
   </section>
 
-  <!-- Segunda fila -->
-  <section class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-    <!-- Calendario -->
-    <div class="p-6 rounded-2xl bg-white/50 backdrop-blur-md shadow border border-[#E0E6E6] lg:col-span-1">
-      <h2 class="text-lg font-semibold text-[#3F4A4C] mb-4">Calendario</h2>
-      <div class="h-56 flex items-center justify-center text-gray-400">
-        📅 Aquí un calendario (ejemplo simple primero, luego librería)
+  <!-- Contenido principal -->
+  <section class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    
+    <!-- Próximas citas -->
+    <div class="p-6 rounded-2xl bg-white/60 backdrop-blur-md shadow border border-[#E0E6E6]">
+      <h2 class="text-lg font-semibold text-[#3F4A4C] mb-4">Próximas Citas</h2>
+      <% if (proximasCitas && proximasCitas.length > 0) { %>
+        <ul class="space-y-3">
+          <% proximasCitas.forEach(cita => { %>
+            <li class="p-3 rounded-xl bg-[#E0E6E6]/50 flex justify-between items-center">
+              <div>
+                <span class="font-semibold"><%= cita.paciente_nombre %> <%= cita.paciente_apellido %></span>
+                <p class="text-xs text-gray-600">Dr. <%= cita.medico_nombre %> <%= cita.medico_apellido %> - <%= cita.especialidad %></p>
+              </div>
+              <div class="text-right">
+                <span class="text-sm font-medium text-[#3F4A4C]">
+                  <%= new Date(cita.fecha).toLocaleDateString('es-PE', { day: '2-digit', month: 'short' }) %>
+                </span>
+                <p class="text-xs text-gray-600"><%= cita.hora.substring(0, 5) %></p>
+              </div>
+            </li>
+          <% }) %>
+        </ul>
+      <% } else { %>
+        <p class="text-center text-gray-500 py-6">No hay citas próximas</p>
+      <% } %>
+      <div class="mt-4">
+        <a href="/citas" class="text-sm text-[#489FB5] hover:underline">Ver todas las citas →</a>
       </div>
     </div>
 
     <!-- Últimos pacientes -->
-    <div class="p-6 rounded-2xl bg-white/50 backdrop-blur-md shadow border border-[#E0E6E6] lg:col-span-2">
-      <h2 class="text-lg font-semibold text-[#3F4A4C] mb-4">Últimos pacientes</h2>
-      <ul class="space-y-3">
-        <li class="p-3 rounded-xl bg-[#E0E6E6]/50 flex justify-between items-center">
-          <span>Juan Pérez</span>
-          <span class="text-sm text-gray-600">Consulta general</span>
-        </li>
-        <li class="p-3 rounded-xl bg-[#E0E6E6]/50 flex justify-between items-center">
-          <span>María García</span>
-          <span class="text-sm text-gray-600">Pediatría</span>
-        </li>
-        <li class="p-3 rounded-xl bg-[#E0E6E6]/50 flex justify-between items-center">
-          <span>Pedro Díaz</span>
-          <span class="text-sm text-gray-600">Cardiología</span>
-        </li>
-      </ul>
+    <div class="p-6 rounded-2xl bg-white/60 backdrop-blur-md shadow border border-[#E0E6E6]">
+      <h2 class="text-lg font-semibold text-[#3F4A4C] mb-4">Últimos Pacientes Registrados</h2>
+      <% if (ultimosPacientes && ultimosPacientes.length > 0) { %>
+        <ul class="space-y-3">
+          <% ultimosPacientes.forEach(paciente => { %>
+            <li class="p-3 rounded-xl bg-[#E0E6E6]/50 flex justify-between items-center">
+              <div>
+                <span class="font-semibold"><%= paciente.nombre %> <%= paciente.apellido %></span>
+                <p class="text-xs text-gray-600">DNI: <%= paciente.dni %></p>
+              </div>
+              <span class="text-sm text-gray-600"><%= paciente.fecha_registro %></span>
+            </li>
+          <% }) %>
+        </ul>
+      <% } else { %>
+        <p class="text-center text-gray-500 py-6">No hay pacientes registrados</p>
+      <% } %>
+      <div class="mt-4">
+        <a href="/pacientes" class="text-sm text-[#489FB5] hover:underline">Ver todos los pacientes →</a>
+      </div>
     </div>
+
+  </section>
+
+  <!-- Accesos rápidos -->
+  <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <a href="/pacientes" class="p-6 rounded-2xl bg-white/60 backdrop-blur-md shadow border border-[#E0E6E6] hover:bg-[#A7D9B8]/30 transition">
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="text-lg font-semibold text-[#3F4A4C]">Gestionar Pacientes</h3>
+          <p class="text-sm text-gray-600">Agregar, editar o buscar pacientes</p>
+        </div>
+        <span class="text-4xl">👤</span>
+      </div>
+    </a>
+    <a href="/citas" class="p-6 rounded-2xl bg-white/60 backdrop-blur-md shadow border border-[#E0E6E6] hover:bg-[#A7D9B8]/30 transition">
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="text-lg font-semibold text-[#3F4A4C]">Programar Cita</h3>
+          <p class="text-sm text-gray-600">Agendar nueva cita médica</p>
+        </div>
+        <span class="text-4xl">📅</span>
+      </div>
+    </a>
+    <a href="/reportes" class="p-6 rounded-2xl bg-white/60 backdrop-blur-md shadow border border-[#E0E6E6] hover:bg-[#A7D9B8]/30 transition">
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="text-lg font-semibold text-[#3F4A4C]">Ver Reportes</h3>
+          <p class="text-sm text-gray-600">Estadísticas y reportes</p>
+        </div>
+        <span class="text-4xl">📊</span>
+      </div>
+    </a>
   </section>
 </div>

@@ -71,8 +71,8 @@
                 <% } %>
               </td>
               <td class="px-6 py-3 text-center space-x-2">
-                <button class="text-[#489FB5] font-semibold hover:underline">Editar</button>
-                <a href="/medicos/eliminar/<%= m.id %>" class="text-red-500 font-semibold hover:underline">Eliminar</a>
+                <button onclick='editarMedico(<%= JSON.stringify(m) %>)' class="text-[#489FB5] font-semibold hover:underline">Editar</button>
+                <button onclick='confirmarEliminacion("/medicos/eliminar/<%= m.id %>", "médico", "Dr. <%= m.nombre %> <%= m.apellido %>")' class="text-red-500 font-semibold hover:underline">Eliminar</button>
               </td>
             </tr>
           <% }) %>

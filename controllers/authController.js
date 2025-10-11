@@ -14,7 +14,9 @@ exports.auth = async(req, res)=>{
                     layout: 'layouts/auth'});
             }else{
                 req.session.loggedin = true;
+                req.session.userId = results[0].id;
                 req.session.nombre = results[0].nombre;
+                req.session.rol = results[0].rol;
                 res.redirect('/dashboard');
             }
         })

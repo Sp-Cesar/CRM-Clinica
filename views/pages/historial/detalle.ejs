@@ -1,0 +1,68 @@
+<div class="space-y-8">
+  <!-- Encabezado -->
+  <header class="flex items-center justify-between">
+    <div>
+      <h1 class="text-3xl font-bold text-[#3F4A4C]">
+        Historial de <%= paciente ? paciente.nombre + ' ' + paciente.apellido : 'Paciente' %>
+      </h1>
+      <p class="text-sm text-[#3F4A4C]/70">
+        DNI: <%= paciente ? paciente.dni : '-' %>
+      </p>
+    </div>
+
+    <a href="/historial" class="bg-[#E0E6E6] hover:bg-[#3F4A4C] hover:text-white text-[#3F4A4C] font-semibold px-5 py-2 rounded-xl shadow transition">
+      ← Volver
+    </a>
+  </header>
+
+  <!-- Timeline de atenciones -->
+  <div class="space-y-4">
+    <% if (historiales && historiales.length > 0) { %>
+      <% historiales.forEach((h) => { %>
+        <div class="p-6 rounded-2xl bg-white/60 backdrop-blur-md shadow-lg border border-[#E0E6E6]">
+          <div class="flex justify-between items-start mb-4">
+            <div>
+              <h3 class="text-lg font-bold text-[#3F4A4C]">
+                <%= new Date(h.fecha_atencion).toLocaleDateString('es-PE', { 
+                  weekday: 'long', 
+                  year: 'numeric', 
+                  month: 'long', 
+                  day: 'numeric' 
+                }) %>
+              </h3>
+              <p class="text-sm text-gray-600">
+                Dr. <%= h.medico_nombre %> <%= h.medico_apellido %> - <%= h.medico_especialidad %>
+              </p>
+            </div>
+          </div>
+
+          <div class="space-y-3">
+            <div>
+              <label class="text-sm font-semibold text-[#3F4A4C]">Diagnóstico:</label>
+              <p class="text-gray-700"><%= h.diagnostico %></p>
+            </div>
+
+            <% if (h.observaciones) { %>
+              <div>
+                <label class="text-sm font-semibold text-[#3F4A4C]">Observaciones:</label>
+                <p class="text-gray-700"><%= h.observaciones %></p>
+              </div>
+            <% } %>
+
+            <% if (h.tratamiento) { %>
+              <div>
+                <label class="text-sm font-semibold text-[#3F4A4C]">Tratamiento:</label>
+                <p class="text-gray-700"><%= h.tratamiento %></p>
+              </div>
+            <% } %>
+          </div>
+        </div>
+      <% }) %>
+    <% } else { %>
+      <div class="p-6 rounded-2xl bg-white/60 backdrop-blur-md shadow-lg border border-[#E0E6E6] text-center text-gray-500">
+        No hay registros de atenciones para este paciente.
+      </div>
+    <% } %>
+  </div>
+</div>
+

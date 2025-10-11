@@ -1,17 +1,19 @@
 <div id="modalPaciente" class="hidden fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
   <div class="bg-white/90 rounded-2xl shadow-xl w-[90%] max-w-lg p-6 relative border border-[#E0E6E6]">
-    <h2 class="text-2xl font-bold text-[#3F4A4C] mb-4">Registrar nuevo paciente</h2>
+    <h2 id="modalTitulo" class="text-2xl font-bold text-[#3F4A4C] mb-4">Registrar nuevo paciente</h2>
 
     <form id="formPaciente" action="/pacientes" method="POST" class="space-y-4">
+      <input type="hidden" id="pacienteId" name="id" />
+      
       <div class="grid grid-cols-2 gap-4">
         <div>
           <label class="text-sm font-medium text-[#3F4A4C]">DNI</label>
-          <input name="dni" required maxlength="15"
+          <input id="pacienteDni" name="dni" required maxlength="15"
             class="w-full px-3 py-2 rounded-xl border border-[#E0E6E6] bg-white/70 outline-none focus:ring-2 focus:ring-[#A7D9B8]" />
         </div>
         <div>
           <label class="text-sm font-medium text-[#3F4A4C]">Correo electrónico</label>
-          <input name="email" type="email"
+          <input id="pacienteEmail" name="email" type="email"
             class="w-full px-3 py-2 rounded-xl border border-[#E0E6E6] bg-white/70 outline-none focus:ring-2 focus:ring-[#A7D9B8]" />
         </div>
       </div>
@@ -19,12 +21,12 @@
       <div class="grid grid-cols-2 gap-4">
         <div>
           <label class="text-sm font-medium text-[#3F4A4C]">Nombre</label>
-          <input name="nombre" required
+          <input id="pacienteNombre" name="nombre" required
             class="w-full px-3 py-2 rounded-xl border border-[#E0E6E6] bg-white/70 outline-none focus:ring-2 focus:ring-[#A7D9B8]" />
         </div>
         <div>
           <label class="text-sm font-medium text-[#3F4A4C]">Apellido</label>
-          <input name="apellido" required
+          <input id="pacienteApellido" name="apellido" required
             class="w-full px-3 py-2 rounded-xl border border-[#E0E6E6] bg-white/70 outline-none focus:ring-2 focus:ring-[#A7D9B8]" />
         </div>
       </div>
@@ -32,19 +34,19 @@
       <div class="grid grid-cols-2 gap-4">
         <div>
           <label class="text-sm font-medium text-[#3F4A4C]">Teléfono</label>
-          <input name="telefono"
+          <input id="pacienteTelefono" name="telefono"
             class="w-full px-3 py-2 rounded-xl border border-[#E0E6E6] bg-white/70 outline-none focus:ring-2 focus:ring-[#A7D9B8]" />
         </div>
         <div>
           <label class="text-sm font-medium text-[#3F4A4C]">Fecha de nacimiento</label>
-          <input name="fecha_nacimiento" type="date"
+          <input id="pacienteFecha" name="fecha_nacimiento" type="date"
             class="w-full px-3 py-2 rounded-xl border border-[#E0E6E6] bg-white/70 outline-none focus:ring-2 focus:ring-[#A7D9B8]" />
         </div>
       </div>
 
       <div>
         <label class="text-sm font-medium text-[#3F4A4C]">Dirección</label>
-        <input name="direccion"
+        <input id="pacienteDireccion" name="direccion"
           class="w-full px-3 py-2 rounded-xl border border-[#E0E6E6] bg-white/70 outline-none focus:ring-2 focus:ring-[#A7D9B8]" />
       </div>
 
@@ -65,7 +67,33 @@
   const modal = document.getElementById("modalPaciente");
   const btnAdd = document.getElementById("btnAddPaciente");
   const btnClose = document.getElementById("btnCerrarModal");
+  const form = document.getElementById("formPaciente");
+  const titulo = document.getElementById("modalTitulo");
 
-  btnAdd.addEventListener("click", () => modal.classList.remove("hidden"));
+  // Abrir modal para crear
+  btnAdd.addEventListener("click", () => {
+    form.action = "/pacientes";
+    form.reset();
+    titulo.textContent = "Registrar nuevo paciente";
+    modal.classList.remove("hidden");
+  });
+
+  // Abrir modal para editar
+  window.editarPaciente = (paciente) => {
+    form.action = `/pacientes/editar/${paciente.id}`;
+    titulo.textContent = "Editar paciente";
+    
+    document.getElementById("pacienteId").value = paciente.id;
+    document.getElementById("pacienteDni").value = paciente.dni;
+    document.getElementById("pacienteNombre").value = paciente.nombre;
+    document.getElementById("pacienteApellido").value = paciente.apellido;
+    document.getElementById("pacienteTelefono").value = paciente.telefono || '';
+    document.getElementById("pacienteEmail").value = paciente.email || '';
+    document.getElementById("pacienteFecha").value = paciente.fecha_nacimiento || '';
+    document.getElementById("pacienteDireccion").value = paciente.direccion || '';
+    
+    modal.classList.remove("hidden");
+  };
+
   btnClose.addEventListener("click", () => modal.classList.add("hidden"));
 </script>

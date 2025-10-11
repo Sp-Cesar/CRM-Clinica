@@ -67,8 +67,8 @@
               <td class="px-6 py-3"><%= p.email || '-' %></td>
               <td class="px-6 py-3"><%= p.direccion || '-' %></td>
               <td class="px-6 py-3 text-center space-x-2">
-                <button class="text-[#489FB5] font-semibold hover:underline">Editar</button>
-                <a href="/pacientes/eliminar/<%= p.id %>" class="text-red-500 font-semibold hover:underline">Eliminar</a>
+                <button onclick='editarPaciente(<%= JSON.stringify(p) %>)' class="text-[#489FB5] font-semibold hover:underline">Editar</button>
+                <button onclick='confirmarEliminacion("/pacientes/eliminar/<%= p.id %>", "paciente", "<%= p.nombre %> <%= p.apellido %>")' class="text-red-500 font-semibold hover:underline">Eliminar</button>
               </td>
             </tr>
           <% }) %>
