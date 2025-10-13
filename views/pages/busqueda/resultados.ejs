@@ -1,0 +1,336 @@
+<div class="space-y-8">
+  <!-- Header de búsqueda -->
+  <header class="flex items-center justify-between">
+    <div>
+      <h1 class="text-3xl font-bold text-[#3F4A4C]">🔍 Resultados de Búsqueda</h1>
+      <p class="text-sm text-[#3F4A4C]/70">
+        <% if (termino) { %>
+          Buscando: "<%= termino %>" - <%= totales.total %> resultado(s) encontrado(s)
+        <% } else { %>
+          Ingresa un término de búsqueda
+        <% } %>
+      </p>
+    </div>
+    
+    <!-- Información de búsqueda -->
+    <div class="text-sm text-gray-600">
+      💡 <strong>Tip:</strong> Usa la barra de búsqueda del sidebar para búsquedas rápidas
+    </div>
+  </header>
+
+  <% if (termino && totales.total > 0) { %>
+    <!-- Filtros de tipo -->
+    <div class="flex gap-2 flex-wrap">
+      <a href="/buscar?q=<%= encodeURIComponent(termino) %>" 
+         class="px-3 py-1 rounded-lg <%= tipo === 'todos' ? 'bg-[#A7D9B8] text-white' : 'bg-gray-200 text-gray-700' %> transition">
+        Todos (<%= totales.total %>)
+      </a>
+      <% if (totales.pacientes > 0) { %>
+        <a href="/buscar?q=<%= encodeURIComponent(termino) %>&tipo=pacientes" 
+           class="px-3 py-1 rounded-lg <%= tipo === 'pacientes' ? 'bg-[#A7D9B8] text-white' : 'bg-gray-200 text-gray-700' %> transition">
+          👤 Pacientes (<%= totales.pacientes %>)
+        </a>
+      <% } %>
+      <% if (totales.medicos > 0) { %>
+        <a href="/buscar?q=<%= encodeURIComponent(termino) %>&tipo=medicos" 
+           class="px-3 py-1 rounded-lg <%= tipo === 'medicos' ? 'bg-[#A7D9B8] text-white' : 'bg-gray-200 text-gray-700' %> transition">
+          👨‍⚕️ Médicos (<%= totales.medicos %>)
+        </a>
+      <% } %>
+      <% if (totales.citas > 0) { %>
+        <a href="/buscar?q=<%= encodeURIComponent(termino) %>&tipo=citas" 
+           class="px-3 py-1 rounded-lg <%= tipo === 'citas' ? 'bg-[#A7D9B8] text-white' : 'bg-gray-200 text-gray-700' %> transition">
+          📅 Citas (<%= totales.citas %>)
+        </a>
+      <% } %>
+      <% if (totales.historial > 0) { %>
+        <a href="/buscar?q=<%= encodeURIComponent(termino) %>&tipo=historial" 
+           class="px-3 py-1 rounded-lg <%= tipo === 'historial' ? 'bg-[#A7D9B8] text-white' : 'bg-gray-200 text-gray-700' %> transition">
+          📋 Historial (<%= totales.historial %>)
+        </a>
+      <% } %>
+    </div>
+
+    <!-- Resultados -->
+    <div class="space-y-8">
+      
+      <!-- Pacientes -->
+      <% if ((tipo === 'todos' || tipo === 'pacientes') && resultados.pacientes.length > 0) { %>
+        <section>
+          <h2 class="text-xl font-semibold text-[#3F4A4C] mb-4 flex items-center gap-2">
+            👤 Pacientes (<%= resultados.pacientes.length %>)
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <% resultados.pacientes.forEach(paciente => { %>
+              <div class="p-4 rounded-xl bg-white/60 backdrop-blur-md shadow border border-[#E0E6E6] hover:shadow-lg transition">
+                <div class="flex items-start justify-between mb-2">
+                  <h3 class="font-semibold text-[#3F4A4C]">
+                    <%= paciente.nombre %> <%= paciente.apellido %>
+                  </h3>
+                  <span class="text-xs text-gray-500">ID: <%= paciente.id %></span>
+                </div>
+                <div class="space-y-1 text-sm text-gray-600">
+                  <p><strong>DNI:</strong> <%= paciente.dni %></p>
+                  <% if (paciente.telefono) { %>
+                    <p><strong>Teléfono:</strong> <%= paciente.telefono %></p>
+                  <% } %>
+                  <% if (paciente.email) { %>
+                    <p><strong>Email:</strong> <%= paciente.email %></p>
+                  <% } %>
+                  <p><strong>Registrado:</strong> <%= paciente.fecha_registro %></p>
+                </div>
+                <div class="mt-3 flex gap-2">
+                  <a href="/pacientes?q=<%= encodeURIComponent(termino) %>" class="text-xs bg-[#A7D9B8] hover:bg-[#3F4A4C] text-white px-3 py-1 rounded transition">
+                    Ver en Pacientes
+                  </a>
+                  <a href="/citas" class="text-xs bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1 rounded transition">
+                    Nueva Cita
+                  </a>
+                  <a href="/historial?q=<%= encodeURIComponent(termino) %>" class="text-xs bg-green-100 hover:bg-green-200 text-green-700 px-3 py-1 rounded transition">
+                    Ver Historial
+                  </a>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+        </section>
+      <% } %>
+
+      <!-- Médicos -->
+      <% if ((tipo === 'todos' || tipo === 'medicos') && resultados.medicos.length > 0) { %>
+        <section>
+          <h2 class="text-xl font-semibold text-[#3F4A4C] mb-4 flex items-center gap-2">
+            👨‍⚕️ Médicos (<%= resultados.medicos.length %>)
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <% resultados.medicos.forEach(medico => { %>
+              <div class="p-4 rounded-xl bg-white/60 backdrop-blur-md shadow border border-[#E0E6E6] hover:shadow-lg transition">
+                <div class="flex items-start justify-between mb-2">
+                  <h3 class="font-semibold text-[#3F4A4C]">
+                    Dr. <%= medico.nombre %> <%= medico.apellido %>
+                  </h3>
+                  <span class="text-xs text-gray-500">ID: <%= medico.id %></span>
+                </div>
+                <div class="space-y-1 text-sm text-gray-600">
+                  <p><strong>Especialidad:</strong> <%= medico.especialidad %></p>
+                  <% if (medico.telefono) { %>
+                    <p><strong>Teléfono:</strong> <%= medico.telefono %></p>
+                  <% } %>
+                  <% if (medico.email) { %>
+                    <p><strong>Email:</strong> <%= medico.email %></p>
+                  <% } %>
+                  <p><strong>Estado:</strong> 
+                    <span class="<%= medico.estado === 1 ? 'text-green-600' : 'text-red-600' %>">
+                      <%= medico.estado === 1 ? 'Activo' : 'Inactivo' %>
+                    </span>
+                  </p>
+                </div>
+                <div class="mt-3 flex gap-2">
+                  <a href="/medicos?q=<%= encodeURIComponent(termino) %>" class="text-xs bg-[#A7D9B8] hover:bg-[#3F4A4C] text-white px-3 py-1 rounded transition">
+                    Ver en Médicos
+                  </a>
+                  <a href="/citas?q=<%= encodeURIComponent(termino) %>" class="text-xs bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1 rounded transition">
+                    Ver Citas
+                  </a>
+                  <a href="/historial?q=<%= encodeURIComponent(termino) %>" class="text-xs bg-green-100 hover:bg-green-200 text-green-700 px-3 py-1 rounded transition">
+                    Ver Historial
+                  </a>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+        </section>
+      <% } %>
+
+      <!-- Citas -->
+      <% if ((tipo === 'todos' || tipo === 'citas') && resultados.citas.length > 0) { %>
+        <section>
+          <h2 class="text-xl font-semibold text-[#3F4A4C] mb-4 flex items-center gap-2">
+            📅 Citas (<%= resultados.citas.length %>)
+          </h2>
+          <div class="space-y-3">
+            <% resultados.citas.forEach(cita => { %>
+              <div class="p-4 rounded-xl bg-white/60 backdrop-blur-md shadow border border-[#E0E6E6] hover:shadow-lg transition">
+                <div class="flex items-start justify-between mb-2">
+                  <div>
+                    <h3 class="font-semibold text-[#3F4A4C]">
+                      <%= cita.paciente_nombre %> <%= cita.paciente_apellido %>
+                    </h3>
+                    <p class="text-sm text-gray-600">
+                      Dr. <%= cita.medico_nombre %> <%= cita.medico_apellido %> - <%= cita.especialidad %>
+                    </p>
+                  </div>
+                  <div class="text-right">
+                    <span class="text-sm font-medium text-[#3F4A4C]">
+                      <%= new Date(cita.fecha).toLocaleDateString('es-PE') %>
+                    </span>
+                    <p class="text-xs text-gray-600"><%= cita.hora.substring(0, 5) %></p>
+                  </div>
+                </div>
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-4 text-sm">
+                    <span class="<%= cita.estado === 'atendida' ? 'text-green-600' : cita.estado === 'cancelada' ? 'text-red-600' : cita.estado === 'confirmada' ? 'text-blue-600' : 'text-gray-600' %>">
+                      <strong>Estado:</strong> <%= cita.estado.charAt(0).toUpperCase() + cita.estado.slice(1) %>
+                    </span>
+                    <% if (cita.motivo) { %>
+                      <span class="text-gray-600">
+                        <strong>Motivo:</strong> <%= cita.motivo %>
+                      </span>
+                    <% } %>
+                  </div>
+                  <div class="flex gap-2">
+                    <a href="/citas?q=<%= encodeURIComponent(termino) %>" class="text-xs bg-[#A7D9B8] hover:bg-[#3F4A4C] text-white px-3 py-1 rounded transition">
+                      Ver en Citas
+                    </a>
+                    <a href="/historial?q=<%= encodeURIComponent(termino) %>" class="text-xs bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1 rounded transition">
+                      Ver Historial
+                    </a>
+                    <a href="/pacientes?q=<%= encodeURIComponent(termino) %>" class="text-xs bg-green-100 hover:bg-green-200 text-green-700 px-3 py-1 rounded transition">
+                      Ver Paciente
+                    </a>
+                  </div>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+        </section>
+      <% } %>
+
+      <!-- Historial -->
+      <% if ((tipo === 'todos' || tipo === 'historial') && resultados.historial.length > 0) { %>
+        <section>
+          <h2 class="text-xl font-semibold text-[#3F4A4C] mb-4 flex items-center gap-2">
+            📋 Historial Médico (<%= resultados.historial.length %>)
+          </h2>
+          <div class="space-y-3">
+            <% resultados.historial.forEach(historial => { %>
+              <div class="p-4 rounded-xl bg-white/60 backdrop-blur-md shadow border border-[#E0E6E6] hover:shadow-lg transition">
+                <div class="flex items-start justify-between mb-2">
+                  <div>
+                    <h3 class="font-semibold text-[#3F4A4C]">
+                      <%= historial.paciente_nombre %> <%= historial.paciente_apellido %>
+                    </h3>
+                    <p class="text-sm text-gray-600">
+                      Dr. <%= historial.medico_nombre %> <%= historial.medico_apellido %>
+                    </p>
+                  </div>
+                  <div class="text-right">
+                    <span class="text-sm font-medium text-[#3F4A4C]">
+                      <%= new Date(historial.fecha_atencion).toLocaleDateString('es-PE') %>
+                    </span>
+                    <p class="text-xs text-gray-500">ID: <%= historial.id %></p>
+                  </div>
+                </div>
+                <div class="space-y-2 text-sm">
+                  <% if (historial.diagnostico) { %>
+                    <p><strong>Diagnóstico:</strong> <%= historial.diagnostico %></p>
+                  <% } %>
+                  <% if (historial.observaciones) { %>
+                    <p><strong>Observaciones:</strong> <%= historial.observaciones %></p>
+                  <% } %>
+                  <% if (historial.tratamiento) { %>
+                    <p><strong>Tratamiento:</strong> <%= historial.tratamiento %></p>
+                  <% } %>
+                </div>
+                <div class="mt-3 flex gap-2">
+                  <a href="/historial?q=<%= encodeURIComponent(termino) %>" class="text-xs bg-[#A7D9B8] hover:bg-[#3F4A4C] text-white px-3 py-1 rounded transition">
+                    Ver en Historial
+                  </a>
+                  <a href="/pacientes?q=<%= encodeURIComponent(termino) %>" class="text-xs bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1 rounded transition">
+                    Ver Paciente
+                  </a>
+                  <a href="/citas?q=<%= encodeURIComponent(termino) %>" class="text-xs bg-green-100 hover:bg-green-200 text-green-700 px-3 py-1 rounded transition">
+                    Ver Citas
+                  </a>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+        </section>
+      <% } %>
+
+    </div>
+
+  <% } else if (termino && totales.total === 0) { %>
+    <!-- Sin resultados -->
+    <div class="text-center py-12">
+      <div class="text-6xl mb-4">🔍</div>
+      <h2 class="text-2xl font-semibold text-[#3F4A4C] mb-2">No se encontraron resultados</h2>
+      <p class="text-gray-600 mb-6">
+        No hay resultados para "<%= termino %>". Intenta con otros términos de búsqueda.
+      </p>
+      <div class="flex gap-4 justify-center">
+        <a href="/pacientes" class="px-4 py-2 bg-[#A7D9B8] hover:bg-[#3F4A4C] text-white rounded-xl transition">
+          👤 Ver Pacientes
+        </a>
+        <a href="/medicos" class="px-4 py-2 bg-[#A7D9B8] hover:bg-[#3F4A4C] text-white rounded-xl transition">
+          👨‍⚕️ Ver Médicos
+        </a>
+        <a href="/citas" class="px-4 py-2 bg-[#A7D9B8] hover:bg-[#3F4A4C] text-white rounded-xl transition">
+          📅 Ver Citas
+        </a>
+      </div>
+    </div>
+  <% } else { %>
+    <!-- Estado inicial -->
+    <div class="text-center py-12">
+      <div class="text-6xl mb-4">🔍</div>
+      <h2 class="text-2xl font-semibold text-[#3F4A4C] mb-2">Búsqueda Inteligente</h2>
+      <p class="text-gray-600 mb-6">
+        Usa la barra de búsqueda del sidebar para buscar en toda la base de datos.
+      </p>
+      <div class="space-y-4">
+        <div class="flex gap-4 justify-center">
+          <a href="/pacientes" class="px-4 py-2 bg-[#A7D9B8] hover:bg-[#3F4A4C] text-white rounded-xl transition">
+            👤 Ver Pacientes
+          </a>
+          <a href="/medicos" class="px-4 py-2 bg-[#A7D9B8] hover:bg-[#3F4A4C] text-white rounded-xl transition">
+            👨‍⚕️ Ver Médicos
+          </a>
+          <a href="/citas" class="px-4 py-2 bg-[#A7D9B8] hover:bg-[#3F4A4C] text-white rounded-xl transition">
+            📅 Ver Citas
+          </a>
+        </div>
+      </div>
+    </div>
+  <% } %>
+</div>
+
+<!-- Script para búsqueda -->
+<script>
+  // Función para realizar búsqueda
+  function realizarBusqueda() {
+    const busquedaInput = document.getElementById('busquedaInput');
+    if (busquedaInput) {
+      const termino = busquedaInput.value.trim();
+      if (termino.length >= 2) {
+        window.location.href = `/buscar?q=${encodeURIComponent(termino)}`;
+      } else {
+        alert('Ingresa al menos 2 caracteres para buscar');
+      }
+    }
+  }
+
+  // Búsqueda con Enter - solo si el elemento existe
+  const busquedaInput = document.getElementById('busquedaInput');
+  if (busquedaInput) {
+    busquedaInput.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        realizarBusqueda();
+      }
+    });
+  }
+
+  // Búsqueda inicial
+  const busquedaInicial = document.getElementById('busquedaInicial');
+  if (busquedaInicial) {
+    busquedaInicial.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        const termino = this.value.trim();
+        if (termino.length >= 2) {
+          window.location.href = `/buscar?q=${encodeURIComponent(termino)}`;
+        }
+      }
+    });
+  }
+</script>

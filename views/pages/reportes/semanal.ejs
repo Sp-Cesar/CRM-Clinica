@@ -1,0 +1,117 @@
+<div class="space-y-8">
+  <!-- Encabezado -->
+  <header class="flex items-center justify-between">
+    <div>
+      <h1 class="text-3xl font-bold text-[#3F4A4C]">Reporte Semanal por Médico 📊</h1>
+      <p class="text-sm text-[#3F4A4C]/70">
+        Del <%= new Date(fechaInicio).toLocaleDateString('es-PE') %> al <%= new Date(fechaFin).toLocaleDateString('es-PE') %>
+      </p>
+    </div>
+
+    <a href="/reportes" class="bg-[#E0E6E6] hover:bg-[#3F4A4C] hover:text-white text-[#3F4A4C] font-semibold px-5 py-2 rounded-xl shadow transition">
+      ← Volver
+    </a>
+  </header>
+
+  <!-- Filtro de rango de fechas y botones de descarga -->
+  <div class="space-y-4">
+    <form method="GET" action="/reportes/semanal" class="flex flex-wrap gap-4 items-center">
+      <div>
+        <label class="text-sm text-[#3F4A4C] font-medium">Desde:</label>
+        <input
+          type="date"
+          name="fecha_inicio"
+          value="<%= fechaInicio %>"
+          class="px-4 py-2 rounded-xl border border-[#E0E6E6] bg-white/60 backdrop-blur-md outline-none focus:ring-2 focus:ring-[#A7D9B8]"
+        />
+      </div>
+      <div>
+        <label class="text-sm text-[#3F4A4C] font-medium">Hasta:</label>
+        <input
+          type="date"
+          name="fecha_fin"
+          value="<%= fechaFin %>"
+          class="px-4 py-2 rounded-xl border border-[#E0E6E6] bg-white/60 backdrop-blur-md outline-none focus:ring-2 focus:ring-[#A7D9B8]"
+        />
+      </div>
+      <button
+        type="submit"
+        class="px-5 py-2 rounded-xl bg-[#A7D9B8] hover:bg-[#3F4A4C] text-white font-semibold shadow transition"
+      >
+        Buscar
+      </button>
+    </form>
+
+    <!-- Botones de descarga -->
+    <div class="flex gap-3">
+      <a 
+        href="/reportes/semanal/excel?fecha_inicio=<%= fechaInicio %>&fecha_fin=<%= fechaFin %>" 
+        class="flex items-center gap-2 px-4 py-2 rounded-xl bg-green-600 hover:bg-green-700 text-white font-semibold shadow transition"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+        </svg>
+        Descargar Excel
+      </a>
+      <a 
+        href="/reportes/semanal/pdf?fecha_inicio=<%= fechaInicio %>&fecha_fin=<%= fechaFin %>" 
+        class="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold shadow transition"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+        </svg>
+        Descargar PDF
+      </a>
+    </div>
+  </div>
+
+  <!-- Estadística total -->
+  <div class="p-6 rounded-2xl bg-[#A7D9B8]/30 backdrop-blur-md shadow-lg border border-[#E0E6E6]">
+    <h3 class="text-sm font-medium text-[#3F4A4C]">Total de Citas en el Período</h3>
+    <p class="text-4xl font-bold text-[#3F4A4C] mt-2"><%= totalCitasSemana %></p>
+  </div>
+
+  <!-- Tabla por médico -->
+  <div class="overflow-x-auto rounded-2xl bg-white/60 backdrop-blur-md shadow-lg border border-[#E0E6E6]">
+    <table class="w-full text-sm text-[#3F4A4C]">
+      <thead class="bg-[#A7D9B8]/70 text-[#3F4A4C] font-semibold uppercase tracking-wide">
+        <tr>
+          <th class="px-6 py-3 text-left">#</th>
+          <th class="px-6 py-3 text-left">Médico</th>
+          <th class="px-6 py-3 text-left">Especialidad</th>
+          <th class="px-6 py-3 text-center">Total Citas</th>
+          <th class="px-6 py-3 text-center">Programadas</th>
+          <th class="px-6 py-3 text-center">Confirmadas</th>
+          <th class="px-6 py-3 text-center">Atendidas</th>
+          <th class="px-6 py-3 text-center">Canceladas</th>
+          <th class="px-6 py-3 text-center">No Asistió</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <% if (medicos && medicos.length > 0) { %>
+          <% medicos.forEach((m, i) => { %>
+            <tr class="border-t border-[#E0E6E6]/60 hover:bg-[#E0E6E6]/40 transition">
+              <td class="px-6 py-3"><%= i + 1 %></td>
+              <td class="px-6 py-3 font-semibold">
+                Dr. <%= m.medico_nombre %> <%= m.medico_apellido %>
+              </td>
+              <td class="px-6 py-3"><%= m.especialidad || '-' %></td>
+              <td class="px-6 py-3 text-center font-bold text-[#3F4A4C]"><%= m.total_citas %></td>
+              <td class="px-6 py-3 text-center text-blue-600"><%= m.programadas %></td>
+              <td class="px-6 py-3 text-center text-green-600"><%= m.confirmadas %></td>
+              <td class="px-6 py-3 text-center text-emerald-600"><%= m.atendidas %></td>
+              <td class="px-6 py-3 text-center text-red-600"><%= m.canceladas %></td>
+              <td class="px-6 py-3 text-center text-gray-600"><%= m.no_show %></td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="9" class="text-center py-6 text-gray-500">No hay médicos registrados.</td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+

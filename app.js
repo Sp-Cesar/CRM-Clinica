@@ -5,10 +5,15 @@ const app = express();
 
 // Configuración de sesión
 app.use(session({
-    secret: "secret",
+    secret: "crm-clinica-la-esperanza-2025-secure-key-d8f7h3k9m2n5p1q4r7t0w3x6z9",
     resave: false,
     saveUninitialized: false,
-    cookie: { maxAge: 1000 * 60 * 60 } // 1 hora
+    cookie: { 
+        maxAge: 1000 * 60 * 60 * 8, // 8 horas
+        httpOnly: true,
+        secure: false, // Cambiar a true en producción con HTTPS
+        sameSite: 'strict'
+    }
 }));
 
 app.use(express.static(__dirname + '/public'));
@@ -37,6 +42,9 @@ app.use('/', require('./routes/dash.routes'));
 app.use('/', require('./routes/paciente.routes'));
 app.use('/', require('./routes/medicos.routes'));
 app.use('/', require('./routes/citas.routes'));
+app.use('/', require('./routes/historial.routes'));
+app.use('/', require('./routes/reportes.routes'));
+app.use('/', require('./routes/busqueda.routes'));
 
 
 app.listen(3000, () => {

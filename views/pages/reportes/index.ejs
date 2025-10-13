@@ -1,0 +1,77 @@
+<div class="space-y-8">
+  <!-- Encabezado -->
+  <header>
+    <h1 class="text-3xl font-bold text-[#3F4A4C]">Reportes 📑</h1>
+    <p class="text-sm text-[#3F4A4C]/70">Estadísticas y reportes de la clínica</p>
+  </header>
+
+  <!-- Tarjetas de reportes -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    
+    <!-- Reporte Diario -->
+    <div class="p-6 rounded-2xl bg-white/60 backdrop-blur-md shadow-lg border border-[#E0E6E6]">
+      <div class="flex items-start justify-between mb-4">
+        <div>
+          <h2 class="text-2xl font-bold text-[#3F4A4C]">Reporte Diario</h2>
+          <p class="text-sm text-gray-600">Citas programadas por día</p>
+        </div>
+        <span class="text-4xl">📅</span>
+      </div>
+
+      <p class="text-gray-700 mb-6">
+        Visualiza todas las citas médicas programadas para un día específico, con estadísticas de estados y detalles de cada atención.
+      </p>
+
+      <a 
+        href="/reportes/diario" 
+        class="block text-center px-6 py-3 rounded-xl bg-[#A7D9B8] hover:bg-[#3F4A4C] text-[#3F4A4C] hover:text-white font-semibold shadow transition"
+      >
+        Ver Reporte Diario
+      </a>
+    </div>
+
+    <!-- Reporte Semanal -->
+    <div class="p-6 rounded-2xl bg-white/60 backdrop-blur-md shadow-lg border border-[#E0E6E6]">
+      <div class="flex items-start justify-between mb-4">
+        <div>
+          <h2 class="text-2xl font-bold text-[#3F4A4C]">Reporte Semanal</h2>
+          <p class="text-sm text-gray-600">Citas por médico y semana</p>
+        </div>
+        <span class="text-4xl">📊</span>
+      </div>
+
+      <p class="text-gray-700 mb-6">
+        Consulta el resumen semanal de citas por médico, incluyendo totales atendidos, cancelados y pendientes de cada profesional.
+      </p>
+
+      <a 
+        href="/reportes/semanal" 
+        class="block text-center px-6 py-3 rounded-xl bg-[#A7D9B8] hover:bg-[#3F4A4C] text-[#3F4A4C] hover:text-white font-semibold shadow transition"
+      >
+        Ver Reporte Semanal
+      </a>
+    </div>
+
+  </div>
+
+  <!-- Estadísticas rápidas -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+    <div class="p-6 rounded-2xl bg-[#A7D9B8]/20 backdrop-blur-md shadow border border-[#E0E6E6]">
+      <h3 class="text-sm font-medium text-[#3F4A4C]">Total Pacientes</h3>
+      <p class="text-3xl font-bold text-[#3F4A4C] mt-2"><%= estadisticas.total_pacientes %></p>
+    </div>
+    <div class="p-6 rounded-2xl bg-[#A7D9B8]/20 backdrop-blur-md shadow border border-[#E0E6E6]">
+      <h3 class="text-sm font-medium text-[#3F4A4C]">Citas Hoy</h3>
+      <p class="text-3xl font-bold text-[#3F4A4C] mt-2"><%= estadisticas.citas_hoy %></p>
+    </div>
+    <div class="p-6 rounded-2xl bg-[#A7D9B8]/20 backdrop-blur-md shadow border border-[#E0E6E6]">
+      <h3 class="text-sm font-medium text-[#3F4A4C]">Médicos Activos</h3>
+      <p class="text-3xl font-bold text-[#3F4A4C] mt-2"><%= estadisticas.medicos_activos %></p>
+    </div>
+    <div class="p-6 rounded-2xl bg-[#A7D9B8]/20 backdrop-blur-md shadow border border-[#E0E6E6]">
+      <h3 class="text-sm font-medium text-[#3F4A4C]">Atenciones Mes</h3>
+      <p class="text-3xl font-bold text-[#3F4A4C] mt-2"><%= estadisticas.atenciones_mes %></p>
+    </div>
+  </div>
+</div>
+

@@ -17,7 +17,10 @@ routerPaciente.get('/pacientes', checkAuth, pacientesController.listarPacientes)
 // Crear paciente
 routerPaciente.post('/pacientes', checkAuth, pacientesController.crearPaciente);
 
+// Editar paciente
+routerPaciente.post('/pacientes/editar/:id', checkAuth, pacientesController.editarPaciente);
+
 // Eliminar paciente
-routerPaciente.get('/pacientes/eliminar/:id', checkAuth, pacientesController.eliminarPaciente);
+routerPaciente.post('/pacientes/eliminar/:id', checkAuth, pacientesController.eliminarPaciente);
 
 module.exports = routerPaciente;

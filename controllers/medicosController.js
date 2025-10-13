@@ -5,27 +5,54 @@ exports.listarMedicos = (req, res) => {
   if (!req.session.loggedin) return res.redirect('/login');
 
   const busqueda = req.query.q ? req.query.q.trim() : '';
+  const estadoFiltro = req.query.estado;
+  const conCitasFiltro = req.query.con_citas;
+  
   let sql = `
     SELECT 
-      id,
-      nombre,
-      apellido,
-      especialidad,
-      telefono,
-      email,
-      estado
-    FROM medicos
+      m.id,
+      m.nombre,
+      m.apellido,
+      m.especialidad,
+      m.telefono,
+      m.email,
+      m.estado,
+      COUNT(c.id) as total_citas
+    FROM medicos m
+    LEFT JOIN citas c ON m.id = c.medico_id
   `;
   const params = [];
+  const condiciones = [];
 
+  // Búsqueda de texto
   if (busqueda) {
-    sql += `
-      WHERE nombre LIKE ? 
-      OR apellido LIKE ? 
-      OR especialidad LIKE ?
-    `;
-    params.push(`%${busqueda}%`, `%${busqueda}%`, `%${busqueda}%`);
+    condiciones.push(`(
+      m.nombre LIKE ? OR 
+      m.apellido LIKE ? OR 
+      m.especialidad LIKE ? OR
+      CONCAT(m.nombre, ' ', m.apellido) LIKE ?
+    )`);
+    params.push(`%${busqueda}%`, `%${busqueda}%`, `%${busqueda}%`, `%${busqueda}%`);
   }
+
+  // Filtro por estado
+  if (estadoFiltro !== undefined && estadoFiltro !== '') {
+    condiciones.push('m.estado = ?');
+    params.push(estadoFiltro);
+  }
+
+  // Filtro por médicos con citas
+  if (conCitasFiltro === '1') {
+    condiciones.push('c.id IS NOT NULL');
+  }
+
+  // Agregar condiciones WHERE si existen
+  if (condiciones.length > 0) {
+    sql += ' WHERE ' + condiciones.join(' AND ');
+  }
+
+  // Agrupar por médico para contar citas
+  sql += ' GROUP BY m.id, m.nombre, m.apellido, m.especialidad, m.telefono, m.email, m.estado';
 
   sql += ' ORDER BY id DESC';
 
@@ -47,6 +74,8 @@ exports.listarMedicos = (req, res) => {
       nombre: req.session.nombre,
       medicos: results,
       busqueda,
+      estadoFiltro,
+      conCitasFiltro,
       layout: 'layouts/main'
     });
   });
@@ -56,28 +85,140 @@ exports.listarMedicos = (req, res) => {
 exports.crearMedico = (req, res) => {
   const { nombre, apellido, especialidad, telefono, email, estado } = req.body;
 
-  // Validación mínima de campos obligatorios
+  // Validar campos obligatorios
   if (!nombre || !apellido) {
-    console.log('❌ Faltan campos obligatorios');
+    req.session.error = 'Nombre y apellido son obligatorios';
+    return res.redirect('/medicos');
+  }
+
+  // Validar email si se proporciona
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    req.session.error = 'El formato del email no es válido';
+    return res.redirect('/medicos');
+  }
+
+  // Validar teléfono si se proporciona
+  if (telefono && !/^\d{6,15}$/.test(telefono.trim())) {
+    req.session.error = 'El teléfono debe contener solo números (6-15 dígitos)';
     return res.redirect('/medicos');
   }
 
   const nuevoMedico = {
-    nombre,
-    apellido,
-    especialidad: especialidad || null,
-    telefono: telefono || null,
-    email: email || null,
+    nombre: nombre.trim(),
+    apellido: apellido.trim(),
+    especialidad: especialidad ? especialidad.trim() : null,
+    telefono: telefono ? telefono.trim() : null,
+    email: email ? email.trim() : null,
     estado: estado || 1,
   };
 
   conexion.query('INSERT INTO medicos SET ?', nuevoMedico, (error) => {
     if (error) {
       console.error('Error al registrar médico:', error);
+      req.session.error = 'Error al registrar el médico. Verifica los datos.';
       return res.redirect('/medicos');
     }
 
-    console.log(`Médico "${nombre} ${apellido}" registrado correctamente.`);
+    req.session.success = `Médico ${nombre} ${apellido} registrado correctamente`;
     res.redirect('/medicos');
+  });
+};
+
+// Editar médico
+exports.editarMedico = (req, res) => {
+  const { id } = req.params;
+  const { nombre, apellido, especialidad, telefono, email, estado } = req.body;
+
+  // Validar ID
+  if (!id || isNaN(id)) {
+    req.session.error = 'ID de médico inválido';
+    return res.redirect('/medicos');
+  }
+
+  // Validar campos obligatorios
+  if (!nombre || !apellido) {
+    req.session.error = 'Nombre y apellido son obligatorios';
+    return res.redirect('/medicos');
+  }
+
+  // Validar email si se proporciona
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    req.session.error = 'El formato del email no es válido';
+    return res.redirect('/medicos');
+  }
+
+  // Validar teléfono si se proporciona
+  if (telefono && !/^\d{6,15}$/.test(telefono.trim())) {
+    req.session.error = 'El teléfono debe contener solo números (6-15 dígitos)';
+    return res.redirect('/medicos');
+  }
+
+  const medicoActualizado = {
+    nombre: nombre.trim(),
+    apellido: apellido.trim(),
+    especialidad: especialidad ? especialidad.trim() : null,
+    telefono: telefono ? telefono.trim() : null,
+    email: email ? email.trim() : null,
+    estado: estado !== undefined ? estado : 1,
+  };
+
+  conexion.query('UPDATE medicos SET ? WHERE id = ?', [medicoActualizado, id], (error, result) => {
+    if (error) {
+      console.error('Error al actualizar médico:', error);
+      req.session.error = 'Error al actualizar el médico. Verifica los datos.';
+      return res.redirect('/medicos');
+    }
+
+    if (result.affectedRows === 0) {
+      req.session.error = 'Médico no encontrado';
+      return res.redirect('/medicos');
+    }
+
+    req.session.success = 'Médico actualizado correctamente';
+    res.redirect('/medicos');
+  });
+};
+
+// Eliminar médico
+exports.eliminarMedico = (req, res) => {
+  const { id } = req.params;
+
+  // Validar ID
+  if (!id || isNaN(id)) {
+    req.session.error = 'ID de médico inválido';
+    return res.redirect('/medicos');
+  }
+
+  // Verificar si tiene citas asociadas
+  conexion.query('SELECT COUNT(*) as total FROM citas WHERE medico_id = ?', [id], (errCheck, results) => {
+    if (errCheck) {
+      console.error('Error al verificar citas:', errCheck);
+      req.session.error = 'Error al verificar las citas del médico';
+      return res.redirect('/medicos');
+    }
+
+    const totalCitas = results[0].total;
+
+    if (totalCitas > 0) {
+      req.session.error = `No se puede eliminar el médico porque tiene ${totalCitas} cita(s) asociada(s)`;
+      return res.redirect('/medicos');
+    }
+
+    // Si no tiene citas, proceder con la eliminación
+    conexion.query('DELETE FROM medicos WHERE id = ?', [id], (error, result) => {
+      if (error) {
+        console.error('Error al eliminar médico:', error);
+        req.session.error = 'Error al eliminar el médico';
+        return res.redirect('/medicos');
+      }
+
+      if (result.affectedRows === 0) {
+        req.session.error = 'Médico no encontrado';
+        return res.redirect('/medicos');
+      }
+
+      req.session.success = 'Médico eliminado correctamente';
+      res.redirect('/medicos');
+    });
   });
 };
