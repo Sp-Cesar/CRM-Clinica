@@ -44,22 +44,22 @@
 
       <!-- Menú -->
       <nav class="mt-6 px-4 space-y-2">
-        <a href="/dashboard" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-[#A7D9B8]/80 text-[#3F4A4C] font-semibold shadow">
+        <a href="/dashboard" id="nav-dashboard" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#A7D9B8]/30 text-[#3F4A4C]">
           📊 <span>Dashboard</span>
         </a>
-        <a href="/pacientes" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#A7D9B8]/30 text-[#3F4A4C]">
+        <a href="/pacientes" id="nav-pacientes" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#A7D9B8]/30 text-[#3F4A4C]">
           👤 <span>Pacientes</span>
         </a>
-        <a href="/medicos" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#A7D9B8]/30 text-[#3F4A4C]">
+        <a href="/medicos" id="nav-medicos" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#A7D9B8]/30 text-[#3F4A4C]">
           🩺 <span>Médicos</span>
         </a>
-        <a href="/citas" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#A7D9B8]/30 text-[#3F4A4C]">
+        <a href="/citas" id="nav-citas" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#A7D9B8]/30 text-[#3F4A4C]">
           📅 <span>Citas</span>
         </a>
-        <a href="/historial" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#A7D9B8]/30 text-[#3F4A4C]">
+        <a href="/historial" id="nav-historial" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#A7D9B8]/30 text-[#3F4A4C]">
           📋 <span>Historial</span>
         </a>
-        <a href="/reportes" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#A7D9B8]/30 text-[#3F4A4C]">
+        <a href="/reportes" id="nav-reportes" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#A7D9B8]/30 text-[#3F4A4C]">
           📑 <span>Reportes</span>
         </a>
       </nav>
@@ -192,6 +192,43 @@
         setTimeout(ocultarSugerencias, 100);
       });
     }
+  </script>
+
+  <!-- Script para manejar la selección activa del menú -->
+  <script>
+    // Función para marcar el elemento activo del menú
+    function marcarMenuActivo() {
+      const currentPath = window.location.pathname;
+      const menuItems = {
+        '/dashboard': 'nav-dashboard',
+        '/pacientes': 'nav-pacientes',
+        '/medicos': 'nav-medicos',
+        '/citas': 'nav-citas',
+        '/historial': 'nav-historial',
+        '/reportes': 'nav-reportes'
+      };
+
+      // Remover clases activas de todos los elementos
+      Object.values(menuItems).forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+          element.className = element.className.replace(/bg-\[#A7D9B8\]\/80|font-semibold|shadow/g, '');
+          element.className += ' hover:bg-[#A7D9B8]/30 text-[#3F4A4C]';
+        }
+      });
+
+      // Marcar el elemento activo
+      const activeId = menuItems[currentPath];
+      if (activeId) {
+        const activeElement = document.getElementById(activeId);
+        if (activeElement) {
+          activeElement.className = 'flex items-center gap-3 px-4 py-3 rounded-xl bg-[#A7D9B8]/80 text-[#3F4A4C] font-semibold shadow';
+        }
+      }
+    }
+
+    // Ejecutar cuando se carga la página
+    document.addEventListener('DOMContentLoaded', marcarMenuActivo);
   </script>
 </body>
 </html>
