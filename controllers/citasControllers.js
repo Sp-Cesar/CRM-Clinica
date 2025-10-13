@@ -376,7 +376,7 @@ exports.obtenerHorariosDisponibles = (req, res) => {
     return res.status(401).json({ error: 'No autorizado' });
   }
 
-  const { medico_id, fecha } = req.query;
+  const { medico_id, fecha, cita_id } = req.query;
 
   // Validar parámetros
   if (!medico_id || !fecha) {
@@ -398,14 +398,21 @@ exports.obtenerHorariosDisponibles = (req, res) => {
 
   const sede_id = req.session.sede_id || 1;
 
-  // Consultar horarios ocupados
-  const sqlOcupados = `
+  // Consultar horarios ocupados (excluyendo la cita actual si se está editando)
+  let sqlOcupados = `
     SELECT hora 
     FROM citas 
     WHERE medico_id = ? AND sede_id = ? AND fecha = ? AND estado != 'cancelada'
   `;
+  let params = [medico_id, sede_id, fecha];
 
-  conexion.query(sqlOcupados, [medico_id, sede_id, fecha], (error, results) => {
+  // Si se está editando una cita, excluirla de los horarios ocupados
+  if (cita_id && !isNaN(cita_id)) {
+    sqlOcupados += ' AND id != ?';
+    params.push(cita_id);
+  }
+
+  conexion.query(sqlOcupados, params, (error, results) => {
     if (error) {
       console.error('Error al consultar horarios ocupados:', error);
       return res.status(500).json({ error: 'Error interno del servidor' });

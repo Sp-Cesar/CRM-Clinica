@@ -2,8 +2,13 @@
   <!-- Header superior -->
   <header class="flex items-center justify-between">
     <div>
-      <h1 class="text-3xl font-bold text-[#3F4A4C]">Dashboard</h1>
-      <p class="text-sm text-[#3F4A4C]/70">Bienvenido, <%= nombre %></p>
+      <h1 class="text-3xl font-bold text-[#3F4A4C]">Dashboard Avanzado 📊</h1>
+      <p class="text-sm text-[#3F4A4C]/70">Bienvenido, <%= nombre %> - Análisis en tiempo real</p>
+    </div>
+    <div class="flex gap-2">
+      <button onclick="actualizarGraficos()" class="px-4 py-2 bg-[#A7D9B8] hover:bg-[#3F4A4C] text-white rounded-lg transition">
+        🔄 Actualizar
+      </button>
     </div>
   </header>
 
@@ -31,12 +36,74 @@
     </div>
   </section>
 
-  <!-- Contenido principal -->
+  <!-- Gráficos principales -->
+  <section class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    
+    <!-- Gráfico de citas por mes -->
+    <div class="p-6 rounded-2xl bg-white/60 backdrop-blur-md shadow border border-[#E0E6E6]">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-semibold text-[#3F4A4C]">📈 Evolución de Citas (6 meses)</h2>
+        <div class="flex gap-2">
+          <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">Total</span>
+          <span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs">Atendidas</span>
+          <span class="px-2 py-1 bg-red-100 text-red-700 rounded text-xs">Canceladas</span>
+        </div>
+      </div>
+      <div class="relative h-80">
+        <canvas id="graficoCitasPorMes"></canvas>
+      </div>
+    </div>
+
+    <!-- Gráfico de especialidades más demandadas -->
+    <div class="p-6 rounded-2xl bg-white/60 backdrop-blur-md shadow border border-[#E0E6E6]">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-semibold text-[#3F4A4C]">🏥 Especialidades Más Demandadas</h2>
+        <span class="text-xs text-gray-500">Últimos 3 meses</span>
+      </div>
+      <div class="relative h-80">
+        <canvas id="graficoEspecialidades"></canvas>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- Segunda fila de gráficos -->
+  <section class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    
+    <!-- Gráfico de horarios más ocupados -->
+    <div class="p-6 rounded-2xl bg-white/60 backdrop-blur-md shadow border border-[#E0E6E6]">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-semibold text-[#3F4A4C]">⏰ Horarios Más Ocupados</h2>
+        <span class="text-xs text-gray-500">Último mes</span>
+      </div>
+      <div class="relative h-80">
+        <canvas id="graficoHorarios"></canvas>
+      </div>
+    </div>
+
+    <!-- Gráfico de tasa de asistencia por médico -->
+    <div class="p-6 rounded-2xl bg-white/60 backdrop-blur-md shadow border border-[#E0E6E6]">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-semibold text-[#3F4A4C]">👨‍⚕️ Tasa de Asistencia por Médico</h2>
+        <div class="flex gap-2">
+          <span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs">≥90%</span>
+          <span class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs">80-89%</span>
+          <span class="px-2 py-1 bg-red-100 text-red-700 rounded text-xs"><80%</span>
+        </div>
+      </div>
+      <div class="relative h-80">
+        <canvas id="graficoAsistencia"></canvas>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- Información adicional -->
   <section class="grid grid-cols-1 lg:grid-cols-2 gap-8">
     
     <!-- Próximas citas -->
     <div class="p-6 rounded-2xl bg-white/60 backdrop-blur-md shadow border border-[#E0E6E6]">
-      <h2 class="text-lg font-semibold text-[#3F4A4C] mb-4">Próximas Citas</h2>
+      <h2 class="text-lg font-semibold text-[#3F4A4C] mb-4">📅 Próximas Citas</h2>
       <% if (proximasCitas && proximasCitas.length > 0) { %>
         <ul class="space-y-3">
           <% proximasCitas.forEach(cita => { %>
@@ -64,7 +131,7 @@
 
     <!-- Últimos pacientes -->
     <div class="p-6 rounded-2xl bg-white/60 backdrop-blur-md shadow border border-[#E0E6E6]">
-      <h2 class="text-lg font-semibold text-[#3F4A4C] mb-4">Últimos Pacientes Registrados</h2>
+      <h2 class="text-lg font-semibold text-[#3F4A4C] mb-4">👤 Últimos Pacientes Registrados</h2>
       <% if (ultimosPacientes && ultimosPacientes.length > 0) { %>
         <ul class="space-y-3">
           <% ultimosPacientes.forEach(paciente => { %>
@@ -118,3 +185,178 @@
     </a>
   </section>
 </div>
+
+<!-- Scripts para los gráficos -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  // Variables globales para los gráficos
+  let graficoCitasPorMes, graficoEspecialidades, graficoHorarios, graficoAsistencia;
+
+  // Función para cargar datos de los gráficos
+  async function cargarDatosGraficos() {
+    try {
+      // Cargar datos de citas por mes
+      const responseCitas = await fetch('/api/dashboard/citas-por-mes');
+      const datosCitas = await responseCitas.json();
+      actualizarGraficoCitasPorMes(datosCitas);
+
+      // Cargar datos de especialidades
+      const responseEspecialidades = await fetch('/api/dashboard/especialidades-demandadas');
+      const datosEspecialidades = await responseEspecialidades.json();
+      actualizarGraficoEspecialidades(datosEspecialidades);
+
+      // Cargar datos de horarios
+      const responseHorarios = await fetch('/api/dashboard/horarios-ocupados');
+      const datosHorarios = await responseHorarios.json();
+      actualizarGraficoHorarios(datosHorarios);
+
+      // Cargar datos de asistencia
+      const responseAsistencia = await fetch('/api/dashboard/tasa-asistencia-medicos');
+      const datosAsistencia = await responseAsistencia.json();
+      actualizarGraficoAsistencia(datosAsistencia);
+
+    } catch (error) {
+      console.error('Error al cargar datos de gráficos:', error);
+    }
+  }
+
+  // Función para actualizar gráfico de citas por mes
+  function actualizarGraficoCitasPorMes(datos) {
+    const ctx = document.getElementById('graficoCitasPorMes').getContext('2d');
+    
+    if (graficoCitasPorMes) {
+      graficoCitasPorMes.destroy();
+    }
+
+    graficoCitasPorMes = new Chart(ctx, {
+      type: 'line',
+      data: datos,
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'top',
+          },
+          title: {
+            display: false
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              stepSize: 1
+            }
+          }
+        },
+        interaction: {
+          intersect: false,
+          mode: 'index'
+        }
+      }
+    });
+  }
+
+  // Función para actualizar gráfico de especialidades
+  function actualizarGraficoEspecialidades(datos) {
+    const ctx = document.getElementById('graficoEspecialidades').getContext('2d');
+    
+    if (graficoEspecialidades) {
+      graficoEspecialidades.destroy();
+    }
+
+    graficoEspecialidades = new Chart(ctx, {
+      type: 'doughnut',
+      data: datos,
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              padding: 20,
+              usePointStyle: true
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // Función para actualizar gráfico de horarios
+  function actualizarGraficoHorarios(datos) {
+    const ctx = document.getElementById('graficoHorarios').getContext('2d');
+    
+    if (graficoHorarios) {
+      graficoHorarios.destroy();
+    }
+
+    graficoHorarios = new Chart(ctx, {
+      type: 'bar',
+      data: datos,
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'top',
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              stepSize: 1
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // Función para actualizar gráfico de asistencia
+  function actualizarGraficoAsistencia(datos) {
+    const ctx = document.getElementById('graficoAsistencia').getContext('2d');
+    
+    if (graficoAsistencia) {
+      graficoAsistencia.destroy();
+    }
+
+    graficoAsistencia = new Chart(ctx, {
+      type: 'bar',
+      data: datos,
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 100,
+            ticks: {
+              callback: function(value) {
+                return value + '%';
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // Función para actualizar todos los gráficos
+  function actualizarGraficos() {
+    cargarDatosGraficos();
+  }
+
+  // Cargar gráficos al cargar la página
+  document.addEventListener('DOMContentLoaded', function() {
+    cargarDatosGraficos();
+  });
+</script>

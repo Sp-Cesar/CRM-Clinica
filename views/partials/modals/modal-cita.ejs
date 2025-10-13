@@ -136,6 +136,7 @@
   async function cargarHorariosDisponibles() {
     const medicoId = selectMedico.value;
     const fecha = selectFecha.value;
+    const citaId = document.getElementById("citaId").value; // Obtener ID de la cita si se está editando
 
     if (!medicoId || !fecha) {
       // Si no hay médico o fecha seleccionada, mostrar mensaje de selección
@@ -149,12 +150,22 @@
     selectHora.disabled = true;
 
     try {
-      const response = await fetch(`/citas/horarios-disponibles?medico_id=${medicoId}&fecha=${fecha}`);
+      // Construir URL con parámetros, incluyendo cita_id si se está editando
+      let url = `/citas/horarios-disponibles?medico_id=${medicoId}&fecha=${fecha}`;
+      if (citaId) {
+        url += `&cita_id=${citaId}`;
+      }
+      
+      const response = await fetch(url);
       const data = await response.json();
 
       if (response.ok) {
+        // Obtener el horario actual si se está editando
+        const horarioActual = document.getElementById("citaHora").value;
+        
         // Solo mostrar horarios disponibles (NO los ocupados)
-        actualizarSelectHorarios(data.horariosDisponibles);
+        // Si se está editando, auto-seleccionar el horario actual
+        actualizarSelectHorarios(data.horariosDisponibles, citaId ? horarioActual : null);
         
         // Mostrar mensaje informativo
         mostrarMensajeHorarios(data.totalDisponibles, data.totalOcupados);
@@ -174,7 +185,7 @@
   }
 
   // Función para actualizar el select de horarios
-  function actualizarSelectHorarios(horariosDisponibles) {
+  function actualizarSelectHorarios(horariosDisponibles, horarioActual = null) {
     // Limpiar todas las opciones
     selectHora.innerHTML = '';
     
@@ -197,6 +208,11 @@
       option.textContent = horario.label;
       selectHora.appendChild(option);
     });
+
+    // Si se está editando y hay un horario actual, auto-seleccionarlo
+    if (horarioActual) {
+      selectHora.value = horarioActual;
+    }
   }
 
 
@@ -257,6 +273,7 @@
     formCita.action = `/citas/editar/${cita.id}`;
     tituloCita.textContent = "Editar cita";
     
+    // Establecer todos los valores primero
     document.getElementById("citaId").value = cita.id;
     document.getElementById("citaPacienteId").value = cita.paciente_id;
     document.getElementById("citaMedicoId").value = cita.medico_id;
@@ -268,7 +285,8 @@
     estadoContainer.classList.remove("hidden");
     modalCita.classList.remove("hidden");
     
-    // Cargar horarios disponibles para la cita que se está editando
+    // Cargar horarios disponibles después de establecer los valores
+    // Esto asegura que el horario actual esté disponible para auto-selección
     setTimeout(() => {
       cargarHorariosDisponibles();
     }, 100);

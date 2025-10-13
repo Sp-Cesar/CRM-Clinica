@@ -12,4 +12,10 @@ function checkAuth(req, res, next) {
 
 routesDash.get('/dashboard', checkAuth, dashboardController.verDashboard);
 
+// API endpoints para gráficos
+routesDash.get('/api/dashboard/citas-por-mes', checkAuth, dashboardController.getCitasPorMes);
+routesDash.get('/api/dashboard/especialidades-demandadas', checkAuth, dashboardController.getEspecialidadesDemandadas);
+routesDash.get('/api/dashboard/horarios-ocupados', checkAuth, dashboardController.getHorariosOcupados);
+routesDash.get('/api/dashboard/tasa-asistencia-medicos', checkAuth, dashboardController.getTasaAsistenciaMedicos);
+
 module.exports = routesDash;
