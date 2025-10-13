@@ -370,6 +370,76 @@ exports.eliminarCita = (req, res) => {
   });
 };
 
+// Obtener horarios disponibles para un médico en una fecha específica
+exports.obtenerHorariosDisponibles = (req, res) => {
+  if (!req.session.loggedin) {
+    return res.status(401).json({ error: 'No autorizado' });
+  }
+
+  const { medico_id, fecha } = req.query;
+
+  // Validar parámetros
+  if (!medico_id || !fecha) {
+    return res.status(400).json({ error: 'Médico y fecha son requeridos' });
+  }
+
+  // Validar formato de fecha
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(fecha)) {
+    return res.status(400).json({ error: 'Formato de fecha inválido' });
+  }
+
+  // Validar que la fecha no sea pasada
+  const fechaCita = new Date(fecha);
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+  if (fechaCita < hoy) {
+    return res.status(400).json({ error: 'No se pueden consultar fechas pasadas' });
+  }
+
+  const sede_id = req.session.sede_id || 1;
+
+  // Consultar horarios ocupados
+  const sqlOcupados = `
+    SELECT hora 
+    FROM citas 
+    WHERE medico_id = ? AND sede_id = ? AND fecha = ? AND estado != 'cancelada'
+  `;
+
+  conexion.query(sqlOcupados, [medico_id, sede_id, fecha], (error, results) => {
+    if (error) {
+      console.error('Error al consultar horarios ocupados:', error);
+      return res.status(500).json({ error: 'Error interno del servidor' });
+    }
+
+    // Horarios ocupados
+    const horariosOcupados = results.map(r => r.hora);
+
+    // Todos los horarios disponibles
+    const todosLosHorarios = [
+      { value: '08:00:00', label: '08:00 - 09:00 AM' },
+      { value: '09:00:00', label: '09:00 - 10:00 AM' },
+      { value: '10:00:00', label: '10:00 - 11:00 AM' },
+      { value: '11:00:00', label: '11:00 - 12:00 PM' },
+      { value: '13:00:00', label: '01:00 - 02:00 PM' },
+      { value: '14:00:00', label: '02:00 - 03:00 PM' },
+      { value: '15:00:00', label: '03:00 - 04:00 PM' },
+      { value: '16:00:00', label: '04:00 - 05:00 PM' }
+    ];
+
+    // Filtrar horarios disponibles
+    const horariosDisponibles = todosLosHorarios.filter(horario => 
+      !horariosOcupados.includes(horario.value)
+    );
+
+    res.json({
+      horariosDisponibles,
+      horariosOcupados,
+      totalDisponibles: horariosDisponibles.length,
+      totalOcupados: horariosOcupados.length
+    });
+  });
+};
+
 // 🕒 Helper para mostrar rangos horarios
 function formatearHoraBloque(horaSQL) {
   const bloques = {

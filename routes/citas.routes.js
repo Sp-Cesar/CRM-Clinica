@@ -22,4 +22,7 @@ router.post('/citas/cancelar/:id', checkAuth, citasController.cancelarCita);
 // Eliminar cita
 router.post('/citas/eliminar/:id', checkAuth, citasController.eliminarCita);
 
+// Obtener horarios disponibles
+router.get('/citas/horarios-disponibles', checkAuth, citasController.obtenerHorariosDisponibles);
+
 module.exports = router;
