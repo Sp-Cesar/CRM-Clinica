@@ -6,6 +6,10 @@ exports.listarHistorial = (req, res) => {
 
   const pacienteFiltro = req.query.paciente_id || '';
   const medicoFiltro = req.query.medico_id || '';
+  const busqueda = req.query.q || '';
+  const recientesFiltro = req.query.recientes;
+  const conDiagnosticoFiltro = req.query.con_diagnostico;
+  const conTratamientoFiltro = req.query.con_tratamiento;
 
   let sql = `
     SELECT 
@@ -31,14 +35,52 @@ exports.listarHistorial = (req, res) => {
 
   const params = [];
 
+  // Búsqueda de texto
+  if (busqueda) {
+    sql += ` AND (
+      p.nombre LIKE ? OR 
+      p.apellido LIKE ? OR 
+      p.dni LIKE ? OR
+      CONCAT(p.nombre, ' ', p.apellido) LIKE ? OR
+      m.nombre LIKE ? OR 
+      m.apellido LIKE ? OR 
+      m.especialidad LIKE ? OR
+      CONCAT(m.nombre, ' ', m.apellido) LIKE ? OR
+      h.diagnostico LIKE ? OR 
+      h.observaciones LIKE ? OR 
+      h.tratamiento LIKE ?
+    )`;
+    const terminoBusqueda = `%${busqueda}%`;
+    params.push(terminoBusqueda, terminoBusqueda, terminoBusqueda, terminoBusqueda, 
+                terminoBusqueda, terminoBusqueda, terminoBusqueda, terminoBusqueda, 
+                terminoBusqueda, terminoBusqueda, terminoBusqueda);
+  }
+
+  // Filtro por paciente
   if (pacienteFiltro) {
     sql += ' AND h.paciente_id = ?';
     params.push(pacienteFiltro);
   }
 
+  // Filtro por médico
   if (medicoFiltro) {
     sql += ' AND h.medico_id = ?';
     params.push(medicoFiltro);
+  }
+
+  // Filtro por historial reciente (últimos 30 días)
+  if (recientesFiltro === '1') {
+    sql += ' AND h.fecha_atencion >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)';
+  }
+
+  // Filtro por historial con diagnóstico
+  if (conDiagnosticoFiltro === '1') {
+    sql += ' AND h.diagnostico IS NOT NULL AND h.diagnostico != ""';
+  }
+
+  // Filtro por historial con tratamiento
+  if (conTratamientoFiltro === '1') {
+    sql += ' AND h.tratamiento IS NOT NULL AND h.tratamiento != ""';
   }
 
   sql += ' ORDER BY h.fecha_atencion DESC, h.creado_en DESC';
@@ -54,6 +96,10 @@ exports.listarHistorial = (req, res) => {
         medicos: [],
         pacienteFiltro,
         medicoFiltro,
+        busqueda,
+        recientesFiltro,
+        conDiagnosticoFiltro,
+        conTratamientoFiltro,
         layout: 'layouts/main'
       });
     }
@@ -72,6 +118,10 @@ exports.listarHistorial = (req, res) => {
           medicos,
           pacienteFiltro,
           medicoFiltro,
+          busqueda,
+          recientesFiltro,
+          conDiagnosticoFiltro,
+          conTratamientoFiltro,
           layout: 'layouts/main'
         });
       });

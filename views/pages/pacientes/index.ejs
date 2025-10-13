@@ -14,27 +14,65 @@
     </button>
   </header>
 
-  <!-- Filtros -->
-  <form method="GET" action="/pacientes" class="flex flex-wrap gap-4 items-center">
-    <input
-      type="text"
-      name="q"
-      value="<%= typeof busqueda !== 'undefined' ? busqueda : '' %>"
-      placeholder="Buscar paciente por nombre o DNI..."
-      class="flex-1 min-w-[240px] px-4 py-2 rounded-xl border border-[#E0E6E6] bg-white/60 backdrop-blur-md outline-none focus:ring-2 focus:ring-[#A7D9B8]"
-    />
-    <button
-      type="submit"
-      class="px-5 py-2 rounded-xl bg-[#A7D9B8] hover:bg-[#3F4A4C] text-white font-semibold shadow transition"
-    >
-      Buscar
-    </button>
-  </form>
+  <!-- Filtros Avanzados -->
+  <div class="space-y-4">
+    <!-- Búsqueda principal -->
+    <form method="GET" action="/pacientes" class="flex flex-wrap gap-4 items-center">
+      <div class="relative flex-1 min-w-[300px]">
+        <input
+          type="text"
+          name="q"
+          id="busquedaPacientes"
+          value="<%= typeof busqueda !== 'undefined' ? busqueda : '' %>"
+          placeholder="Buscar por nombre, apellido, DNI, teléfono o email..."
+          class="w-full px-4 py-2 pl-10 rounded-xl border border-[#E0E6E6] bg-white/60 backdrop-blur-md outline-none focus:ring-2 focus:ring-[#A7D9B8]"
+        />
+        <div class="absolute left-3 top-2.5 text-gray-400">
+          🔍
+        </div>
+        <!-- Dropdown de sugerencias -->
+        <div id="sugerenciasPacientes" class="hidden absolute z-50 w-full mt-1 bg-white rounded-xl shadow-lg border border-[#E0E6E6] max-h-60 overflow-y-auto">
+          <!-- Las sugerencias se cargarán aquí dinámicamente -->
+        </div>
+      </div>
+      <button
+        type="submit"
+        class="px-5 py-2 rounded-xl bg-[#A7D9B8] hover:bg-[#3F4A4C] text-white font-semibold shadow transition"
+      >
+        Buscar
+      </button>
+      <button
+        type="button"
+        onclick="limpiarFiltros()"
+        class="px-4 py-2 rounded-xl border border-[#E0E6E6] bg-white/60 hover:bg-gray-100 text-gray-600 transition"
+      >
+        Limpiar
+      </button>
+    </form>
 
-  <% if (busqueda) { %>
-    <p class="text-sm text-[#3F4A4C]/70">
-      Resultados de búsqueda para: <strong><%= busqueda %></strong>
-    </p>
+    <!-- Filtros adicionales -->
+    <div class="flex flex-wrap gap-4 items-center text-sm">
+      <div class="flex items-center gap-2">
+        <span class="text-gray-600">Filtros rápidos:</span>
+        <a href="/pacientes?q=" class="px-3 py-1 <%= !recientesFiltro && !sinCitasFiltro ? 'bg-[#A7D9B8] text-white' : 'bg-gray-100 hover:bg-gray-200' %> rounded-lg transition">Todos</a>
+        <a href="/pacientes?recientes=1" class="px-3 py-1 <%= recientesFiltro === '1' ? 'bg-blue-600 text-white' : 'bg-blue-100 hover:bg-blue-200 text-blue-700' %> rounded-lg transition">Recientes</a>
+        <a href="/pacientes?sin_citas=1" class="px-3 py-1 <%= sinCitasFiltro === '1' ? 'bg-yellow-600 text-white' : 'bg-yellow-100 hover:bg-yellow-200 text-yellow-700' %> rounded-lg transition">Sin citas</a>
+      </div>
+    </div>
+  </div>
+
+  <% if (busqueda || recientesFiltro || sinCitasFiltro) { %>
+    <div class="flex items-center gap-4 text-sm text-[#3F4A4C]/70">
+      <% if (busqueda) { %>
+        <span>Búsqueda: <strong><%= busqueda %></strong></span>
+      <% } %>
+      <% if (recientesFiltro === '1') { %>
+        <span>Filtro: <strong>Pacientes Recientes</strong></span>
+      <% } %>
+      <% if (sinCitasFiltro === '1') { %>
+        <span>Filtro: <strong>Sin Citas</strong></span>
+      <% } %>
+    </div>
   <% } %>
 
 
@@ -84,3 +122,95 @@
 
 <!-- Modal -->
 <%- include('../../partials/modals/modal-paciente') %>
+
+<!-- Script para búsqueda mejorada -->
+<script>
+  // Variables globales
+  let timeoutBusqueda;
+  const busquedaInput = document.getElementById('busquedaPacientes');
+  const sugerenciasDropdown = document.getElementById('sugerenciasPacientes');
+
+  // Función para obtener sugerencias de pacientes
+  async function obtenerSugerenciasPacientes(termino) {
+    if (termino.length < 2) {
+      ocultarSugerencias();
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/autocompletado?q=${encodeURIComponent(termino)}&tipo=pacientes`);
+      const data = await response.json();
+      
+      if (data.sugerencias && data.sugerencias.length > 0) {
+        mostrarSugerenciasPacientes(data.sugerencias);
+      } else {
+        ocultarSugerencias();
+      }
+    } catch (error) {
+      console.error('Error al obtener sugerencias:', error);
+      ocultarSugerencias();
+    }
+  }
+
+  // Función para mostrar sugerencias
+  function mostrarSugerenciasPacientes(sugerencias) {
+    sugerenciasDropdown.innerHTML = '';
+    
+    sugerencias.forEach(sugerencia => {
+      const item = document.createElement('div');
+      item.className = 'px-4 py-2 hover:bg-[#A7D9B8]/20 cursor-pointer flex items-center gap-3 border-b border-gray-100 last:border-b-0';
+      item.innerHTML = `
+        <span class="text-lg">👤</span>
+        <div class="flex-1">
+          <div class="font-medium text-[#3F4A4C]">${sugerencia.texto}</div>
+          <div class="text-xs text-gray-500">DNI: ${sugerencia.dni}</div>
+        </div>
+      `;
+      
+      item.addEventListener('click', () => {
+        busquedaInput.value = sugerencia.texto;
+        ocultarSugerencias();
+        // Auto-submit del formulario
+        busquedaInput.closest('form').submit();
+      });
+      
+      sugerenciasDropdown.appendChild(item);
+    });
+    
+    sugerenciasDropdown.classList.remove('hidden');
+  }
+
+  // Función para ocultar sugerencias
+  function ocultarSugerencias() {
+    sugerenciasDropdown.classList.add('hidden');
+  }
+
+  // Función para limpiar filtros
+  function limpiarFiltros() {
+    busquedaInput.value = '';
+    window.location.href = '/pacientes';
+  }
+
+  // Event listeners
+  if (busquedaInput) {
+    // Búsqueda con debounce
+    busquedaInput.addEventListener('input', (e) => {
+      clearTimeout(timeoutBusqueda);
+      timeoutBusqueda = setTimeout(() => {
+        obtenerSugerenciasPacientes(e.target.value);
+      }, 300);
+    });
+
+    // Ocultar sugerencias al hacer clic fuera
+    document.addEventListener('click', (e) => {
+      if (!busquedaInput.contains(e.target) && !sugerenciasDropdown.contains(e.target)) {
+        ocultarSugerencias();
+      }
+    });
+
+    // Ocultar sugerencias al perder foco
+    busquedaInput.addEventListener('blur', () => {
+      setTimeout(ocultarSugerencias, 200);
+    });
+  }
+</script>

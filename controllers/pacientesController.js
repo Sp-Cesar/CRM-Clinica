@@ -5,32 +5,57 @@ exports.listarPacientes = (req, res) => {
   if (!req.session.loggedin) return res.redirect('/login');
 
   const busqueda = req.query.q ? req.query.q.trim() : '';
+  const recientesFiltro = req.query.recientes;
+  const sinCitasFiltro = req.query.sin_citas;
 
   let sql = `
     SELECT 
-      id,
-      dni,
-      nombre,
-      apellido,
-      telefono,
-      email,
-      fecha_nacimiento,
-      TIMESTAMPDIFF(YEAR, fecha_nacimiento, CURDATE()) AS edad,
-      direccion
-    FROM pacientes
+      p.id,
+      p.dni,
+      p.nombre,
+      p.apellido,
+      p.telefono,
+      p.email,
+      p.fecha_nacimiento,
+      TIMESTAMPDIFF(YEAR, p.fecha_nacimiento, CURDATE()) AS edad,
+      p.direccion,
+      p.creado_en,
+      COUNT(c.id) as total_citas
+    FROM pacientes p
+    LEFT JOIN citas c ON p.id = c.paciente_id
   `;
 
   const params = [];
+  const condiciones = [];
 
-  // Si hay texto de búsqueda, agregamos condición WHERE
+  // Búsqueda de texto
   if (busqueda) {
-    sql += `
-      WHERE nombre LIKE ? 
-      OR apellido LIKE ? 
-      OR dni LIKE ?
-    `;
-    params.push(`%${busqueda}%`, `%${busqueda}%`, `%${busqueda}%`);
+    condiciones.push(`(
+      p.nombre LIKE ? OR 
+      p.apellido LIKE ? OR 
+      p.dni LIKE ? OR
+      CONCAT(p.nombre, ' ', p.apellido) LIKE ?
+    )`);
+    params.push(`%${busqueda}%`, `%${busqueda}%`, `%${busqueda}%`, `%${busqueda}%`);
   }
+
+  // Filtro por pacientes recientes (últimos 30 días)
+  if (recientesFiltro === '1') {
+    condiciones.push('p.creado_en >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)');
+  }
+
+  // Filtro por pacientes sin citas
+  if (sinCitasFiltro === '1') {
+    condiciones.push('c.id IS NULL');
+  }
+
+  // Agregar condiciones WHERE si existen
+  if (condiciones.length > 0) {
+    sql += ' WHERE ' + condiciones.join(' AND ');
+  }
+
+  // Agrupar por paciente para contar citas
+  sql += ' GROUP BY p.id, p.dni, p.nombre, p.apellido, p.telefono, p.email, p.fecha_nacimiento, p.direccion, p.creado_en';
 
   sql += ' ORDER BY id DESC';
 
@@ -52,6 +77,8 @@ exports.listarPacientes = (req, res) => {
       nombre: req.session.nombre,
       pacientes: results,
       busqueda,
+      recientesFiltro,
+      sinCitasFiltro,
       layout: 'layouts/main'
     });
   });

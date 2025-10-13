@@ -44,6 +44,7 @@ app.use('/', require('./routes/medicos.routes'));
 app.use('/', require('./routes/citas.routes'));
 app.use('/', require('./routes/historial.routes'));
 app.use('/', require('./routes/reportes.routes'));
+app.use('/', require('./routes/busqueda.routes'));
 
 
 app.listen(3000, () => {

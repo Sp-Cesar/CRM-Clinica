@@ -7,6 +7,7 @@ exports.listarCitas = (req, res) => {
   const fechaFiltro = req.query.fecha || '';
   const medicoFiltro = req.query.medico_id || '';
   const estadoFiltro = req.query.estado || '';
+  const busqueda = req.query.q || '';
 
   let sql = `
     SELECT 
@@ -17,6 +18,7 @@ exports.listarCitas = (req, res) => {
       p.apellido AS paciente_apellido,
       m.nombre AS medico_nombre,
       m.apellido AS medico_apellido,
+      m.especialidad,
       s.nombre AS sede_nombre,
       c.fecha,
       c.hora,
@@ -30,6 +32,26 @@ exports.listarCitas = (req, res) => {
   `;
 
   const params = [];
+
+  // Búsqueda de texto
+  if (busqueda) {
+    sql += ` AND (
+      p.nombre LIKE ? OR 
+      p.apellido LIKE ? OR 
+      p.dni LIKE ? OR
+      CONCAT(p.nombre, ' ', p.apellido) LIKE ? OR
+      m.nombre LIKE ? OR 
+      m.apellido LIKE ? OR 
+      m.especialidad LIKE ? OR
+      CONCAT(m.nombre, ' ', m.apellido) LIKE ? OR
+      c.motivo LIKE ? OR 
+      c.estado LIKE ?
+    )`;
+    const terminoBusqueda = `%${busqueda}%`;
+    params.push(terminoBusqueda, terminoBusqueda, terminoBusqueda, terminoBusqueda, 
+                terminoBusqueda, terminoBusqueda, terminoBusqueda, terminoBusqueda, 
+                terminoBusqueda, terminoBusqueda);
+  }
 
   if (fechaFiltro) {
     sql += ' AND c.fecha = ?';
@@ -113,6 +135,7 @@ exports.listarCitas = (req, res) => {
           fechaFiltro,
           medicoFiltro,
           estadoFiltro,
+          busqueda,
           layout: 'layouts/main'
         });
       });

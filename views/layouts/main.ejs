@@ -23,6 +23,25 @@
         <h1 class="text-lg font-bold text-[#3F4A4C]">CRM Clínica</h1>
       </div>
 
+      <!-- Barra de búsqueda global -->
+      <div class="mt-6 px-4">
+        <div class="relative">
+          <input
+            type="text"
+            id="busquedaGlobal"
+            placeholder="Buscar en todo el CRM..."
+            class="w-full px-4 py-2 pl-10 rounded-xl border border-[#E0E6E6] bg-white/60 backdrop-blur-md outline-none focus:ring-2 focus:ring-[#A7D9B8] text-sm"
+          />
+          <div class="absolute left-3 top-2.5 text-gray-400">
+            🔍
+          </div>
+        </div>
+        <!-- Dropdown de sugerencias -->
+        <div id="sugerenciasDropdown" class="hidden absolute z-50 w-64 mt-1 bg-white rounded-xl shadow-lg border border-[#E0E6E6] max-h-60 overflow-y-auto">
+          <!-- Las sugerencias se cargarán aquí dinámicamente -->
+        </div>
+      </div>
+
       <!-- Menú -->
       <nav class="mt-6 px-4 space-y-2">
         <a href="/dashboard" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-[#A7D9B8]/80 text-[#3F4A4C] font-semibold shadow">
@@ -62,5 +81,117 @@
 
   <!-- Modal de confirmación global -->
   <%- include('../partials/modals/modal-confirmacion') %>
+
+  <!-- Script para búsqueda global -->
+  <script>
+    // Variables globales
+    let timeoutBusqueda;
+    const busquedaInput = document.getElementById('busquedaGlobal');
+    const sugerenciasDropdown = document.getElementById('sugerenciasDropdown');
+
+    // Función para obtener sugerencias
+    async function obtenerSugerencias(termino) {
+      if (termino.length < 2) {
+        ocultarSugerencias();
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/autocompletado?q=${encodeURIComponent(termino)}`);
+        const data = await response.json();
+        
+        if (data.sugerencias && data.sugerencias.length > 0) {
+          mostrarSugerencias(data.sugerencias);
+        } else {
+          ocultarSugerencias();
+        }
+      } catch (error) {
+        console.error('Error al obtener sugerencias:', error);
+        ocultarSugerencias();
+      }
+    }
+
+    // Función para mostrar sugerencias
+    function mostrarSugerencias(sugerencias) {
+      sugerenciasDropdown.innerHTML = '';
+      
+      sugerencias.forEach(sugerencia => {
+        const item = document.createElement('div');
+        item.className = 'px-4 py-2 hover:bg-[#A7D9B8]/20 cursor-pointer flex items-center gap-3 border-b border-gray-100 last:border-b-0';
+        item.innerHTML = `
+          <span class="text-lg">${sugerencia.icono}</span>
+          <div class="flex-1">
+            <div class="font-medium text-[#3F4A4C]">${sugerencia.texto}</div>
+            <div class="text-xs text-gray-500">
+              ${sugerencia.tipo === 'paciente' ? `DNI: ${sugerencia.dni}` : `Especialidad: ${sugerencia.especialidad}`}
+            </div>
+          </div>
+        `;
+        
+        item.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          // Actualizar el valor del input
+          busquedaInput.value = sugerencia.texto;
+          // Ocultar sugerencias inmediatamente
+          ocultarSugerencias();
+          // Realizar búsqueda
+          realizarBusquedaGlobal(sugerencia.texto);
+        });
+        
+        sugerenciasDropdown.appendChild(item);
+      });
+      
+      sugerenciasDropdown.classList.remove('hidden');
+    }
+
+    // Función para ocultar sugerencias
+    function ocultarSugerencias() {
+      sugerenciasDropdown.classList.add('hidden');
+    }
+
+    // Función para realizar búsqueda global
+    function realizarBusquedaGlobal(termino) {
+      console.log('Realizando búsqueda global con término:', termino);
+      if (termino && termino.trim().length >= 2) {
+        const url = `/buscar?q=${encodeURIComponent(termino.trim())}`;
+        console.log('Navegando a:', url);
+        window.location.href = url;
+      } else {
+        console.log('Término de búsqueda inválido:', termino);
+      }
+    }
+
+    // Event listeners
+    if (busquedaInput) {
+      // Búsqueda con debounce
+      busquedaInput.addEventListener('input', (e) => {
+        clearTimeout(timeoutBusqueda);
+        timeoutBusqueda = setTimeout(() => {
+          obtenerSugerencias(e.target.value);
+        }, 300);
+      });
+
+      // Búsqueda con Enter
+      busquedaInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          realizarBusquedaGlobal(e.target.value);
+        }
+      });
+
+      // Ocultar sugerencias al hacer clic fuera
+      document.addEventListener('click', (e) => {
+        if (!busquedaInput.contains(e.target) && !sugerenciasDropdown.contains(e.target)) {
+          ocultarSugerencias();
+        }
+      });
+
+      // Ocultar sugerencias al perder foco
+      busquedaInput.addEventListener('blur', () => {
+        setTimeout(ocultarSugerencias, 100);
+      });
+    }
+  </script>
 </body>
 </html>

@@ -5,27 +5,54 @@ exports.listarMedicos = (req, res) => {
   if (!req.session.loggedin) return res.redirect('/login');
 
   const busqueda = req.query.q ? req.query.q.trim() : '';
+  const estadoFiltro = req.query.estado;
+  const conCitasFiltro = req.query.con_citas;
+  
   let sql = `
     SELECT 
-      id,
-      nombre,
-      apellido,
-      especialidad,
-      telefono,
-      email,
-      estado
-    FROM medicos
+      m.id,
+      m.nombre,
+      m.apellido,
+      m.especialidad,
+      m.telefono,
+      m.email,
+      m.estado,
+      COUNT(c.id) as total_citas
+    FROM medicos m
+    LEFT JOIN citas c ON m.id = c.medico_id
   `;
   const params = [];
+  const condiciones = [];
 
+  // Búsqueda de texto
   if (busqueda) {
-    sql += `
-      WHERE nombre LIKE ? 
-      OR apellido LIKE ? 
-      OR especialidad LIKE ?
-    `;
-    params.push(`%${busqueda}%`, `%${busqueda}%`, `%${busqueda}%`);
+    condiciones.push(`(
+      m.nombre LIKE ? OR 
+      m.apellido LIKE ? OR 
+      m.especialidad LIKE ? OR
+      CONCAT(m.nombre, ' ', m.apellido) LIKE ?
+    )`);
+    params.push(`%${busqueda}%`, `%${busqueda}%`, `%${busqueda}%`, `%${busqueda}%`);
   }
+
+  // Filtro por estado
+  if (estadoFiltro !== undefined && estadoFiltro !== '') {
+    condiciones.push('m.estado = ?');
+    params.push(estadoFiltro);
+  }
+
+  // Filtro por médicos con citas
+  if (conCitasFiltro === '1') {
+    condiciones.push('c.id IS NOT NULL');
+  }
+
+  // Agregar condiciones WHERE si existen
+  if (condiciones.length > 0) {
+    sql += ' WHERE ' + condiciones.join(' AND ');
+  }
+
+  // Agrupar por médico para contar citas
+  sql += ' GROUP BY m.id, m.nombre, m.apellido, m.especialidad, m.telefono, m.email, m.estado';
 
   sql += ' ORDER BY id DESC';
 
@@ -47,6 +74,8 @@ exports.listarMedicos = (req, res) => {
       nombre: req.session.nombre,
       medicos: results,
       busqueda,
+      estadoFiltro,
+      conCitasFiltro,
       layout: 'layouts/main'
     });
   });
